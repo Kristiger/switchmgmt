@@ -4,28 +4,28 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-public class Qos {
-	
-	
-	
+public class QosPolicy {
 	private String queuePort;
 	private String qosName;
+	private String switchdpid;
 	
 	private long maxRate;
 	private long minRate;
 	
 	private List<QosQueue> queues;
 
-	public Qos(){
+	public QosPolicy(){
 		queues = new ArrayList<QosQueue>();
 	}
 	
-	public Qos(String queuePort, String qosName, long maxRate, long minRate, int queueNum){
+	public QosPolicy(String switchdpid, String qosName, String queuePort, long maxRate, long minRate){
 		this();
-		this.maxRate = maxRate;
-		this.minRate = minRate;
 		this.qosName = qosName;
 		this.queuePort = queuePort;
+		this.switchdpid = switchdpid;
+		
+		this.maxRate = maxRate;
+		this.minRate = minRate;
 	}
 
 	public String getQueuePort() {
@@ -42,6 +42,14 @@ public class Qos {
 
 	public void setQosName(String qosName) {
 		this.qosName = qosName;
+	}
+
+	public String getSwitchdpid() {
+		return switchdpid;
+	}
+
+	public void setSwitchdpid(String switchdpid) {
+		this.switchdpid = switchdpid;
 	}
 
 	public long getMaxRate() {
@@ -62,6 +70,17 @@ public class Qos {
 
 	public void addQueue(QosQueue queue){
 		queues.add(queue);
+	}
+	
+	public QosQueue getQueue(int index){
+		if(index >= queues.size()){
+			return null;
+		}
+		return queues.get(index);
+	}
+	
+	public List<QosQueue> getQueues() {
+		return queues;
 	}
 
 	@Override
@@ -86,22 +105,25 @@ public class Qos {
 		if (getClass() != obj.getClass())
 			return false;
 		
-		Qos other = (Qos) obj;
+		QosPolicy other = (QosPolicy) obj;
 		if (this.toString().equals(other.toString())){
 			return true;
 		}
 		
 		return false;
 	}
-
+	
 	@Override
 	public String toString() {
-		return "Qos [queuePort=" + queuePort + ", qosName=" + qosName
-				+ ", maxRate=" + maxRate + ", minRate=" + minRate + ", queues="
-				+ queues + "]";
+		return "QosPolicy [queuePort=" + queuePort + ", qosName=" + qosName
+				+ ", switchdpid=" + switchdpid + ", maxRate=" + maxRate
+				+ ", minRate=" + minRate + ", queues=" + queues + "]";
 	}
-	
+
 	public String serialize(){
+		if (!check()){
+			return "error, see log";
+		}
 		StringBuilder seri = new StringBuilder();
 		seri.append("ovs-vsctl -- set Port ");
 		seri.append(queuePort);
@@ -111,15 +133,17 @@ public class Qos {
 		
 		if (maxRate != 0)
 			seri.append(" other-config:max-rate=" + maxRate);
+		
 		if (minRate != 0)
-			seri.append(" other-config:in-rate=" + minRate);		
+			seri.append(" other-config:in-rate=" + minRate);
+		
 		seri.append(" queues=");
 		
 		Iterator<QosQueue> it = queues.iterator();
 		QosQueue qu;
 		int i = 0;
 		qu = it.next();
-		seri.append(qu.getQueueID() + "=q"+ i);
+		seri.append(qu.getQueueID() + "=q"+ qu.getQueueID());
 		
 		while(it.hasNext()){
 			seri.append(",");
@@ -157,13 +181,5 @@ public class Qos {
 		}
 		
 		return true;
-	}
-	
-	/*ovs−vsctl −− set Port eth0 qos=@newqos \
-	−− set Port eth1 qos=@newqos \
-	−− −−id=@newqos create QoS type=linux−htb other−config:max−rate=1000000000
-	queues=0=@q0,1=@q1 \
-	−− −−id=@q0 create Queue other−config:min−rate=100000000 other−config:max−rate=100000000 \
-	−− −−id=@q1 create Queue other−config:min−rate=500000000*/
-		
+	}		
 }

@@ -1,6 +1,7 @@
 package model.tools.Qos;
 
 public class QosQueue {
+	
 	private int queueID;
 	private long minRate;
 	private long maxRate;
@@ -26,6 +27,10 @@ public class QosQueue {
 	
 	public Object serialize() {
 		// TODO Auto-generated method stub
+		if(!check()){
+			return "error, see log";
+		}
+		
 		StringBuilder seri = new StringBuilder();
 		seri.append(" -- --id=@" + queueID + " create queue");
 		if (maxRate != 0)
