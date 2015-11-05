@@ -18,7 +18,8 @@ public class SwitchJSON {
     
 	public static Future<Object> startSwitchRestCalls(final String dpid, final boolean update) {
         Future<Object> future = executor.submit(new Callable<Object>() {
-            public Object call() {
+            @Override
+			public Object call() {
             	
             	Future<Object> futureDescription = null, futureAggregate = null, 
             			futureFlow = null, futurePort = null, futureFeatures = null;

@@ -413,6 +413,7 @@ public class StaticFlowManager {
 			}
 		});
 		btnSave_3.addSelectionListener(new SelectionAdapter() {
+			@Override
 			public void widgetSelected(SelectionEvent e) {
 				if (flow != null) {
 					if (MatchToTable.errorChecksPassed(currSwitch,
@@ -552,6 +553,7 @@ public class StaticFlowManager {
 		btnClear.setBounds(387, 3, 125, 29);
 		btnClear.setText("Clear");
 		btnClear.addSelectionListener(new SelectionAdapter() {
+			@Override
 			public void widgetSelected(SelectionEvent e) {
 				setupNewFlow();
 			}
@@ -772,6 +774,7 @@ public class StaticFlowManager {
 		matchEditor.grabHorizontal = true;
 		matchEditor.minimumWidth = 50;
 		match_table.addSelectionListener(new SelectionAdapter() {
+			@Override
 			public void widgetSelected(SelectionEvent e) {
 
 				disposeEditors("match");
@@ -786,6 +789,7 @@ public class StaticFlowManager {
 				Text newEditor = new Text(match_table, SWT.NONE);
 				newEditor.setText(item.getText(EDITABLECOLUMN));
 				newEditor.addModifyListener(new ModifyListener() {
+					@Override
 					public void modifyText(ModifyEvent me) {
 						Text text = (Text) matchEditor.getEditor();
 						matchEditor.getItem().setText(EDITABLECOLUMN,

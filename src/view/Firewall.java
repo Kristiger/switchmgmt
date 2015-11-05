@@ -451,7 +451,8 @@ public class Firewall {
         btnClear.setBounds(387, 3, 125, 29);
         btnClear.setText("Clear");
         btnClear.addSelectionListener(new SelectionAdapter() {
-            public void widgetSelected(SelectionEvent e) {
+            @Override
+			public void widgetSelected(SelectionEvent e) {
                 setupNewRule();
             }
         });

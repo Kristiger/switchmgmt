@@ -22,26 +22,27 @@ import controller.util.JSONObject;
  */
 public class ControllerJSON {
 
-    private static String IP = FloodlightProvider.getIP();
-    private static String PORT = FloodlightProvider.getPort();
-    private static Future<Object> futureHealth,futureModules,futureMemory;
+	private static String IP = FloodlightProvider.getIP();
+	private static String PORT = FloodlightProvider.getPort();
+	private static Future<Object> futureHealth, futureModules, futureMemory;
 	private static JSONObject obj;
 
-	public static List<String> getControllerInfo() throws JSONException, IOException {
+	public static List<String> getControllerInfo() throws JSONException,
+			IOException {
 
-		List <String> info = new ArrayList<String>();
+		List<String> info = new ArrayList<String>();
 
 		// Add the ip address of the controller
-		info.add(0,IP);
+		info.add(0, IP);
 
 		// Start threads that make calls to the restAPI
-		futureHealth = Deserializer.readJsonObjectFromURL("http://" + IP
-				+ ":" + PORT + "/wm/core/health/json");
-		futureMemory = Deserializer.readJsonObjectFromURL("http://" + IP
-				+ ":" + PORT + "/wm/core/memory/json");
-		futureModules = Deserializer.readJsonObjectFromURL("http://" + IP
-				+ ":" + PORT + "/wm/core/module/loaded/json");
-		
+		futureHealth = Deserializer.readJsonObjectFromURL("http://" + IP + ":"
+				+ PORT + "/wm/core/health/json");
+		futureMemory = Deserializer.readJsonObjectFromURL("http://" + IP + ":"
+				+ PORT + "/wm/core/memory/json");
+		futureModules = Deserializer.readJsonObjectFromURL("http://" + IP + ":"
+				+ PORT + "/wm/core/module/loaded/json");
+
 		// HEALTH
 		try {
 			obj = (JSONObject) futureHealth.get(5, TimeUnit.SECONDS);
@@ -56,10 +57,12 @@ public class ControllerJSON {
 			e2.printStackTrace();
 		}
 
+		if (obj == null)
+			return info;
 		if (obj.getBoolean("healthy")) {
-			info.add(1,"Yes");
+			info.add(1, "Yes");
 		} else {
-			info.add(1,"No");
+			info.add(1, "No");
 		}
 
 		// MEMORY
@@ -77,8 +80,8 @@ public class ControllerJSON {
 		}
 		long free = obj.getLong("free");
 		long total = obj.getLong("total");
-		info.add(2,FormatLong.formatBytes(free,true,false)
-				+ " free of " + FormatLong.formatBytes(total,true,false));
+		info.add(2, FormatLong.formatBytes(free, true, false) + " free of "
+				+ FormatLong.formatBytes(total, true, false));
 
 		// MODULES
 		try {
