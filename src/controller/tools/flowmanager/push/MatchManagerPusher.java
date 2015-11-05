@@ -21,7 +21,6 @@ public class MatchManagerPusher {
 			else
 				match.setDataLayerType(items[2].getText(1));
 		}
-		
 		if (!items[3].getText(1).isEmpty())
 			match.setDataLayerVLAN(items[3].getText(1));
 		if (!items[4].getText(1).isEmpty())

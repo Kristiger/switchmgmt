@@ -23,9 +23,9 @@ import model.overview.Switch;
 public class SwitchesJSON {
 
 	static String IP = FloodlightProvider.getIP();
-	static JSONArray json;
-	static JSONObject obj;
 	static List<Switch> switches, oldSwitches;
+	static JSONObject obj;
+	static JSONArray json;
 
 	// This parses JSON from the restAPI to get all the switches connected to
 	// the controller
@@ -33,9 +33,9 @@ public class SwitchesJSON {
 	public static List<Switch> getSwitches() throws JSONException, IOException {
 
 		List<String> switchDpids = new ArrayList<String>();
+		Map<String, Future<Object>> futureStats = new HashMap<String, Future<Object>>();
 		switches = new ArrayList<Switch>();
 		oldSwitches = FloodlightProvider.getSwitches(false);
-		Map<String, Future<Object>> futureStats = new HashMap<String, Future<Object>>();
 
 		switchDpids = getSwitchDpids();
 
@@ -115,15 +115,16 @@ public class SwitchesJSON {
 			sw.setFlows(FlowJSON.getFlows(dpid));
 
 			// Port and Features stats
-			if (portObj == null || !portObj.has("port")){
+			if (portObj == null || !portObj.has("port")) {
 				return switches;
-			}
+			}			
 			JSONArray json = portObj.getJSONArray("port");
+			
 			JSONArray jsontwo = new JSONArray();
-			if (featuresObj.has("portDesc")){
+			if (featuresObj.has("portDesc")) {
 				jsontwo = featuresObj.getJSONArray("portDesc");
 			}
-			
+
 			for (int i = 0; i < json.length(); i++) {
 				obj = (JSONObject) json.get(i);
 				if (!obj.has("portNumber"))
@@ -188,11 +189,9 @@ public class SwitchesJSON {
 		Future<Object> futureStat = SwitchJSON.startSwitchRestCalls(dpid, true);
 
 		try {
-			stats = (Map<String, Future<Object>>) futureStat.get(5L,
-					TimeUnit.SECONDS);
+			stats = (Map<String, Future<Object>>) futureStat.get(5L, TimeUnit.SECONDS);
 			portObj = (JSONObject) stats.get("port").get(5L, TimeUnit.SECONDS);
-			featuresObj = (JSONObject) stats.get("features").get(5L,
-					TimeUnit.SECONDS);
+			featuresObj = (JSONObject) stats.get("features").get(5L, TimeUnit.SECONDS);
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -213,22 +212,23 @@ public class SwitchesJSON {
 		}
 
 		// Port and Features stats
-		if (portObj == null || !portObj.has("port")) {
-			return;
-		}		
-		JSONArray json = portObj.getJSONArray("port");
-		
-		if (!featuresObj.has("portDesc")) {
-			return;
+		JSONArray json = new JSONArray();
+		if (portObj.has("port")) {
+			json = portObj.getJSONArray("port");
 		}
-		JSONArray jsontwo = featuresObj.getJSONArray("portDesc");
-		
+
+		JSONArray jsontwo = new JSONArray();
+		if (featuresObj.has("portDesc")) {
+			jsontwo = featuresObj.getJSONArray("portDesc");
+		}
+
 		for (int i = 0; i < json.length(); i++) {
 			obj = (JSONObject) json.get(i);
 			if (!obj.has("portNumber")) {
 				return;
 			}
 			Port port = new Port(obj.getString("portNumber"));
+			
 			port.setReceivePackets(FormatLong.formatPackets(
 					obj.getLong("receivePackets"), false, false));
 			port.setTransmitPackets(FormatLong.formatPackets(

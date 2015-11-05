@@ -22,27 +22,35 @@ public class DevicesJSON {
 	private static JSONObject obj;
 	private static JSONArray jsonip;
 
+	/**
+	 * Get the string IDs of all the switches and create switch summary objects
+	 * for each one
+	 * 
+	 * @return devices
+	 * @throws JSONException
+	 */
 	public static List<Device> getDeviceSummaries() throws JSONException {
 
-		List<Device> deviceSummaries = new ArrayList<Device>();
+		List<Device> devicees = new ArrayList<Device>();
 
-		// Get the string IDs of all the switches and create switch summary
-		// objects for each one
 		try {
-			Future<Object> devices = Deserializer.readJsonArrayFromURL("http://" + IP
-					+ ":" + PORT + "/wm/device/");
+			Future<Object> devices = Deserializer
+					.readJsonArrayFromURL("http://" + IP + ":" + PORT
+							+ "/wm/device/");
 			JSONArray json = (JSONArray) devices.get(5, TimeUnit.SECONDS);
+
 			for (int i = 0; i < json.length(); i++) {
 				obj = json.getJSONObject(i);
-				Device temp = new Device(obj.getJSONArray("mac")
-						.getString(0));
-				if (!obj.getJSONArray("ipv4").isNull(0)){
+				Device temp = new Device(obj.getJSONArray("mac").getString(0));
+
+				if (!obj.getJSONArray("ipv4").isNull(0)) {
 					jsonip = obj.getJSONArray("ipv4");
 					String ip = jsonip.getString(0);
-					for(int j = 1; j < jsonip.length(); j++){
+
+					for (int j = 1; j < jsonip.length(); j++) {
 						ip = ip + "," + jsonip.getString(j);
 					}
-					//temp.setIpv4(obj.getJSONArray("ipv4").getString(0));
+					// temp.setIpv4(obj.getJSONArray("ipv4").getString(0));
 					temp.setIpv4(ip);
 				}
 				if (!obj.getJSONArray("attachmentPoint").isNull(0)) {
@@ -53,7 +61,7 @@ public class DevicesJSON {
 				}
 				Date d = new Date(obj.getLong("lastSeen"));
 				temp.setLastSeen(d);
-				deviceSummaries.add(temp);
+				devicees.add(temp);
 			}
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
@@ -65,6 +73,6 @@ public class DevicesJSON {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		return deviceSummaries;
+		return devicees;
 	}
 }

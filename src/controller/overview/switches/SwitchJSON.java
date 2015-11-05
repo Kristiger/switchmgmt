@@ -20,7 +20,8 @@ public class SwitchJSON {
         Future<Object> future = executor.submit(new Callable<Object>() {
             public Object call() {
             	
-            	Future<Object> futureDescription = null, futureAggregate = null, futureFlow, futurePort, futureFeatures;
+            	Future<Object> futureDescription = null, futureAggregate = null, 
+            			futureFlow = null, futurePort = null, futureFeatures = null;
             	Map<String, Future<Object>> requests = new HashMap<String, Future<Object>>();
             	
             	if(!update){

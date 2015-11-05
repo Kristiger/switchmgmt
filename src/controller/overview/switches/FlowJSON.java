@@ -44,10 +44,10 @@ public class FlowJSON {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		//sometimes there is no flow syntax and may cause an Exception
 		if (obj.has("flows"))
 			json = obj.getJSONArray("flows");
 		else {
-			json = null;
 			return flows;
 		}
 
@@ -57,29 +57,34 @@ public class FlowJSON {
 				Flow flow = new Flow(dpid);
 
 				if (obj.has("actions"))
-					flow.setActions(ActionJSON.getActions(obj
-							.getJSONObject("actions")));
+					flow.setActions(ActionJSON.getActions(obj.getJSONObject("actions")));
 
+				//OF13 like this
 				if (obj.has("instructions"))
 					flow.setActions(ActionJSON.getOF13Actions(obj
 							.getJSONObject("instructions")));
 
-				if (obj.getJSONObject("match").length() == 0)
-					continue;
-
-				flow.setMatch(MatchJSON.getMatch(obj.getJSONObject("match")));
-				flow.setPriority(String.valueOf(obj.getInt("priority")));
-				if (obj.getInt("idleTimeoutSec") != 0)
-					flow.setIdleTimeOut(String.valueOf(obj
-							.getInt("idleTimeoutSec")));
-				if (obj.getInt("hardTimeoutSec") != 0)
-					flow.setHardTimeOut(String.valueOf(obj
-							.getInt("hardTimeoutSec")));
-				flow.setDurationSeconds(String.valueOf(obj
-						.getInt("durationSeconds")));
-				flow.setPacketCount(String.valueOf(obj.getInt("packetCount")));
-				flow.setByteCount(FormatLong.formatBytes(
-						obj.getLong("byteCount"), false, false));
+				//OF13 has 256 tables and, through this can exclude those has no flows.
+				if (obj.has("match") && obj.getJSONObject("match").length() != 0)
+					flow.setMatch(MatchJSON.getMatch(obj.getJSONObject("match")));
+				
+				if (obj.has("priority"))
+					flow.setPriority(String.valueOf(obj.getInt("priority")));
+				
+				if (obj.has("idleTimeoutSec") && obj.getInt("idleTimeoutSec") != 0)
+					flow.setIdleTimeOut(String.valueOf(obj.getInt("idleTimeoutSec")));
+				
+				if (obj.has("hardTimeoutSec") && obj.getInt("hardTimeoutSec") != 0)
+					flow.setHardTimeOut(String.valueOf(obj.getInt("hardTimeoutSec")));
+				if (obj.has("durationSeconds"))
+					flow.setDurationSeconds(String.valueOf(obj.getInt("durationSeconds")));
+				
+				if (obj.has("packetCount"))
+					flow.setPacketCount(String.valueOf(obj.getInt("packetCount")));
+				
+				if(obj.has("byteCount"))
+					flow.setByteCount(FormatLong.formatBytes(obj.getLong("byteCount"), false, false));
+				
 				flows.add(flow);
 			}
 		}

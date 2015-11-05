@@ -16,7 +16,6 @@ import controller.util.JSONException;
 import controller.util.JSONObject;
 
 /**
- * @author LZ
  * 
  * Get Controller Health,Modules,Memory By RestAPI
  * 
@@ -25,8 +24,8 @@ public class ControllerJSON {
 
     private static String IP = FloodlightProvider.getIP();
     private static String PORT = FloodlightProvider.getPort();
+    private static Future<Object> futureHealth,futureModules,futureMemory;
 	private static JSONObject obj;
-	private static Future<Object> futureHealth,futureModules,futureMemory;
 
 	public static List<String> getControllerInfo() throws JSONException, IOException {
 
@@ -78,7 +77,8 @@ public class ControllerJSON {
 		}
 		long free = obj.getLong("free");
 		long total = obj.getLong("total");
-		info.add(2,FormatLong.formatBytes(free,true,false) + " free of " + FormatLong.formatBytes(total,true,false));
+		info.add(2,FormatLong.formatBytes(free,true,false)
+				+ " free of " + FormatLong.formatBytes(total,true,false));
 
 		// MODULES
 		try {

@@ -25,6 +25,7 @@ public class ActionJSON {
 			IOException {
 
 		List<Action> actions = new ArrayList<Action>();
+		
 		for (int i = 0; i < json.length(); i++) {
 			obj = json.getJSONObject(i);
 			String objActionType = obj.getString("type");

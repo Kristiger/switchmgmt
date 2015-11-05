@@ -7,7 +7,8 @@ import model.overview.Flow;
 
 public class FlowToTable {
 
-	// This returns a table representation of a flow, formatted for the controller overview
+	// This returns a table representation of a flow, formatted for the
+	// controller overview
 	public static String[][] getFlowTableFormat(List<Flow> flows) {
 
 		if (flows != null) {
@@ -23,13 +24,13 @@ public class FlowToTable {
 				stringList.add(flow.getPacketCount());
 				stringList.add(flow.getByteCount());
 				stringList.add(flow.getDurationSeconds());
+
 				if (flow.getIdleTimeOut() != null) {
 					stringList.add(flow.getIdleTimeOut());
 				} else {
 					stringList.add("Static");
 				}
-				arrData[count] = stringList.toArray(new String[stringList
-						.size()]);
+				arrData[count] = stringList.toArray(new String[stringList.size()]);
 				count++;
 			}
 			return arrData;

@@ -129,7 +129,7 @@ public class Startup {
 
 		try {
 			ImageData ideaImage = new ImageData(getClass().getResourceAsStream(
-					"img/floodlight.png"));
+					"floodlight.png"));
 			Image floodlight = new Image(display, ideaImage);
 			Label lblNewLabel_2 = new Label(shell, SWT.NONE);
 			lblNewLabel_2.setBounds(20, 0, 470, 278);

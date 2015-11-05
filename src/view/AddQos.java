@@ -1,10 +1,9 @@
 package view;
 
 import java.awt.Toolkit;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-
-import javax.swing.plaf.basic.BasicTreeUI.TreeHomeAction;
 
 import model.overview.Port;
 import model.overview.QosPolicy;
@@ -36,13 +35,14 @@ public class AddQos extends Shell {
 	private Text textPortMax;
 	private Text textPortMin;
 	private Text textQueueID;
-	private Text textMax;
-	private Text textMin;
+	private Text textQueueMax;
+	private Text textQueueMin;
 
 	private Tree treeSwitches;
 	private Tree treeQueues;
 	private Tree treePort;
 
+	private List<QosPolicy> qospolicies;
 	private QosPolicy qospolicy;
 	private QosQueue queue;
 	private static Port currPort;
@@ -50,7 +50,7 @@ public class AddQos extends Shell {
 	private int currSwitchIndex, currPortIndex;
 	private static boolean unsavedprogress, newqueue, policyset;
 	private static int queueNumber = 0;
-
+	
 	/**
 	 * Create the shell.
 	 * 
@@ -95,8 +95,8 @@ public class AddQos extends Shell {
 		textPortMin.setText("");
 
 		// clear queue
-		textMax.setText("");
-		textMin.setText("");
+		textQueueMax.setText("");
+		textQueueMin.setText("");
 		textQueueID.setText("");
 
 		qospolicy = null;
@@ -111,6 +111,10 @@ public class AddQos extends Shell {
 		} else {
 			new TreeItem(treeSwitches, SWT.NONE).setText("None");
 		}
+		
+		if (!FloodlightProvider.getQospolicys().isEmpty()){
+			qospolicies = FloodlightProvider.getQospolicys();
+		}
 	}
 
 	private void populatePortTree(int index) {
@@ -121,8 +125,8 @@ public class AddQos extends Shell {
 
 		// queue text clear
 		textQueueID.setText("");
-		textMax.setText("");
-		textMin.setText("");
+		textQueueMax.setText("");
+		textQueueMin.setText("");
 
 		// port text clear
 		textPortMax.setText("");
@@ -158,8 +162,8 @@ public class AddQos extends Shell {
 
 		// text queue clear
 		textQueueID.setText("");
-		textMax.setText("");
-		textMin.setText("");
+		textQueueMax.setText("");
+		textQueueMin.setText("");
 
 		currPortIndex = index;
 		try {
@@ -210,14 +214,14 @@ public class AddQos extends Shell {
 	private void populateQueueView(int index) {
 
 		textQueueID.setText("");
-		textMax.setText("");
-		textMin.setText("");
+		textQueueMax.setText("");
+		textQueueMin.setText("");
 
 		queue = qospolicy.getQueue(index);
 		if (queue != null) {
 			textQueueID.setText(String.valueOf(queue.getQueueID()));
-			textMax.setText(String.valueOf(queue.getMaxRate()));
-			textMin.setText(String.valueOf(queue.getMinRate()));
+			textQueueMax.setText(String.valueOf(queue.getMaxRate()));
+			textQueueMin.setText(String.valueOf(queue.getMinRate()));
 		}
 	}
 
@@ -260,8 +264,8 @@ public class AddQos extends Shell {
 		// newqueue true means there has been a new queue, no need to create
 		if (qospolicy != null && newqueue == false) {
 			queue = new QosQueue();
-			textMax.setText("");
-			textMin.setText("");
+			textQueueMax.setText("");
+			textQueueMin.setText("");
 			textQueueID.setText(String.valueOf(queueNumber));
 			newqueue = true;
 		} else if (newqueue == true) {
@@ -283,8 +287,8 @@ public class AddQos extends Shell {
 		// there is a new queue
 		if (newqueue == true) {
 			try {
-				queue.setMaxRate(Integer.valueOf(textMax.getText()));
-				queue.setMinRate(Integer.valueOf(textMin.getText()));
+				queue.setMaxRate(Integer.valueOf(textQueueMax.getText()));
+				queue.setMinRate(Integer.valueOf(textQueueMin.getText()));
 				queue.setQueueID(Integer.valueOf(textQueueID.getText()));
 			} catch (NumberFormatException e) {
 				// TODO: handle exception
@@ -383,16 +387,16 @@ public class AddQos extends Shell {
 		textQueueID.setBounds(71, 47, 73, 21);
 		textQueueID.setEditable(false);
 
-		textMax = new Text(composite, SWT.BORDER);
-		textMax.setBounds(71, 95, 73, 21);
+		textQueueMax = new Text(composite, SWT.BORDER);
+		textQueueMax.setBounds(71, 95, 73, 21);
 
 		Label lblMaxrate = new Label(composite, SWT.NONE);
 		lblMaxrate.setText("MaxRate");
 		lblMaxrate.setAlignment(SWT.RIGHT);
 		lblMaxrate.setBounds(10, 98, 55, 15);
 
-		textMin = new Text(composite, SWT.BORDER);
-		textMin.setBounds(248, 95, 73, 21);
+		textQueueMin = new Text(composite, SWT.BORDER);
+		textQueueMin.setBounds(248, 95, 73, 21);
 
 		Label lblMinrate = new Label(composite, SWT.NONE);
 		lblMinrate.setText("MinRate");
