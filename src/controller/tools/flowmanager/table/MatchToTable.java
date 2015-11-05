@@ -5,11 +5,10 @@ import java.util.List;
 import org.eclipse.swt.widgets.TableItem;
 
 import controller.util.ErrorCheck;
-
+import model.overview.Match;
 import model.overview.Port;
 import model.overview.Switch;
-import model.tools.flowmanager.Match;
-import view.tools.flowmanager.StaticFlowManager;
+import view.StaticFlowManager;
 import view.util.DisplayMessage;
 
 public class MatchToTable {

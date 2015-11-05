@@ -11,14 +11,13 @@ import java.util.List;
 
 import org.eclipse.swt.widgets.TableItem;
 
-import view.tools.firewall.Firewall;
+import view.Firewall;
 import view.util.DisplayMessage;
 import controller.floodlightprovider.FloodlightProvider;
 import controller.util.ErrorCheck;
 import controller.util.JSONException;
 import controller.util.JSONObject;
-
-import model.tools.firewall.Rule;
+import model.overview.FirewallRule;
 
 public class FirewallPusher {
     
@@ -26,7 +25,7 @@ public class FirewallPusher {
     private static String PORT = FloodlightProvider.getPort();
     private static String jsonResponse;
     
-    public static String push(Rule rule) throws IOException, JSONException{
+    public static String push(FirewallRule rule) throws IOException, JSONException{
         
         jsonResponse = "";
         URL url = new URL("http://" + IP
@@ -53,7 +52,7 @@ public class FirewallPusher {
         
         // Make sure the firewall pusher throws no errors
         if (json.getString("status").equals("Rule added") ) {
-            for (Rule r : FloodlightProvider.getRules()) {
+            for (FirewallRule r : FloodlightProvider.getRules()) {
                 System.out.println("r:" + r.serialize());
                 System.out.println("rule" + rule.serialize()); 
                 if (rule.equals(r)) {
@@ -67,7 +66,7 @@ public class FirewallPusher {
         }
     }
     
-    public static String remove(Rule rule) throws IOException, JSONException{
+    public static String remove(FirewallRule rule) throws IOException, JSONException{
         
         jsonResponse = "";
 
@@ -102,9 +101,9 @@ public class FirewallPusher {
     }
     
     public static void removeAll(){
-        List<Rule> rules = FloodlightProvider.getRules();
+        List<FirewallRule> rules = FloodlightProvider.getRules();
         
-        for(Rule rule : rules){
+        for(FirewallRule rule : rules){
             try {
                 remove(rule);
             } catch (IOException | JSONException e) {
@@ -114,7 +113,7 @@ public class FirewallPusher {
         }
     }
      
-    public static Rule parseTableChanges(Rule rule, TableItem[] items) {
+    public static FirewallRule parseTableChanges(FirewallRule rule, TableItem[] items) {
         
         if (!items[1].getText(1).isEmpty())
             rule.setDl_src(items[1].getText(1));

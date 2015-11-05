@@ -1,9 +1,8 @@
-package controller.overview.switchesdetailed.json;
+package controller.overview.switches;
 
 import java.io.IOException;
 
-import model.tools.flowmanager.Match;
-
+import model.overview.Match;
 import controller.util.JSONArray;
 import controller.util.JSONException;
 import controller.util.JSONObject;

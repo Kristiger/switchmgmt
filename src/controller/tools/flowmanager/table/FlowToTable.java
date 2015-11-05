@@ -1,6 +1,6 @@
 package controller.tools.flowmanager.table;
 
-import model.tools.flowmanager.Flow;
+import model.overview.Flow;
 
 public class FlowToTable {
 

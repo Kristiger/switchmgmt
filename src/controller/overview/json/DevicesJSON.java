@@ -13,7 +13,7 @@ import controller.util.Deserializer;
 import controller.util.JSONArray;
 import controller.util.JSONException;
 import controller.util.JSONObject;
-import model.overview.DeviceSummary;
+import model.overview.Device;
 
 public class DevicesJSON {
 
@@ -22,9 +22,9 @@ public class DevicesJSON {
 	private static JSONObject obj;
 	private static JSONArray jsonip;
 
-	public static List<DeviceSummary> getDeviceSummaries() throws JSONException {
+	public static List<Device> getDeviceSummaries() throws JSONException {
 
-		List<DeviceSummary> deviceSummaries = new ArrayList<DeviceSummary>();
+		List<Device> deviceSummaries = new ArrayList<Device>();
 
 		// Get the string IDs of all the switches and create switch summary
 		// objects for each one
@@ -34,7 +34,7 @@ public class DevicesJSON {
 			JSONArray json = (JSONArray) devices.get(5, TimeUnit.SECONDS);
 			for (int i = 0; i < json.length(); i++) {
 				obj = json.getJSONObject(i);
-				DeviceSummary temp = new DeviceSummary(obj.getJSONArray("mac")
+				Device temp = new Device(obj.getJSONArray("mac")
 						.getString(0));
 				if (!obj.getJSONArray("ipv4").isNull(0)){
 					jsonip = obj.getJSONArray("ipv4");

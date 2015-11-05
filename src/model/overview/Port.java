@@ -5,6 +5,8 @@ public class Port {
 	String portNumber, receivePackets, transmitPackets, receiveBytes, transmitBytes, receiveDropped, transmitDropped, receiveErrors,
 	transmitErrors, receieveFrameErrors, receieveOverrunErrors, receiveCRCErrors, collisions, advertisedFeatures, config, currentFeatures, 
 	hardwareAddress, name, peerFeatures, state, supportedFeatures, errors;
+	
+	String portPhysicalNumber;
 
 	public String getAdvertisedFeatures() {
 		return advertisedFeatures;
@@ -66,6 +68,14 @@ public class Port {
 				+ Integer.valueOf(this.receiveCRCErrors) 
 				+ Integer.valueOf(this.receiveErrors) 
 				+ Integer.valueOf(this.transmitErrors));
+	}
+
+	public String getPortPhysicalNumber() {
+		return portPhysicalNumber;
+	}
+
+	public void setPortPhysicalNumber(String portPhysicalNumber) {
+		this.portPhysicalNumber = "vif" + portPhysicalNumber + ".0";
 	}
 
 	public String getHardwareAddress() {

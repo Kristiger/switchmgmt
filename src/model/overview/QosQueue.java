@@ -1,11 +1,18 @@
-package model.tools.Qos;
+package model.overview;
 
 public class QosQueue {
 	
+	private String uuid;
 	private int queueID;
 	private long minRate;
 	private long maxRate;
 	
+	public String getUuid() {
+		return uuid;
+	}
+	public void setUuid(String uuid) {
+		this.uuid = uuid;
+	}
 	public int getQueueID() {
 		return queueID;
 	}
@@ -32,7 +39,7 @@ public class QosQueue {
 		}
 		
 		StringBuilder seri = new StringBuilder();
-		seri.append(" -- --id=@" + queueID + " create queue");
+		seri.append(" -- --id=@q" + queueID + " create queue");
 		if (maxRate != 0)
 			seri.append(" other-config:max-rate=" + String.valueOf(maxRate));		
 		if (minRate != 0)

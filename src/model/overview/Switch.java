@@ -3,9 +3,6 @@ package model.overview;
 import java.util.ArrayList;
 import java.util.List;
 
-
-import model.tools.flowmanager.Flow;
-
 public class Switch {
 	
 	String manufacturerDescription, hardwareDescription, 

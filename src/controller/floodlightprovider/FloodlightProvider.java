@@ -4,22 +4,30 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import controller.overview.switchesdetailed.json.FlowJSON;
-import controller.overview.switchesdetailed.json.SwitchesJSON;
-import controller.tools.ACL.json.ACLManagerJSON;
+import model.overview.FirewallRule;
+import model.overview.Flow;
+import model.overview.QosPolicy;
+import model.overview.Switch;
+import controller.overview.switches.FlowJSON;
+import controller.overview.switches.SwitchesJSON;
 import controller.tools.firewall.json.RuleJSON;
 import controller.tools.flowmanager.json.StaticFlowManagerJSON;
 import controller.util.JSONException;
-import model.overview.Switch;
-import model.tools.ACL.ACLRule;
-import model.tools.firewall.Rule;
-import model.tools.flowmanager.Flow;
 
+/**
+ * @author LZ
+ *
+ */
+/**
+ * @author LZ
+ *
+ */
 public class FloodlightProvider {
     
     private static List<Switch> switches = new ArrayList<Switch>();
     private static List<Flow> staticFlows = new ArrayList<Flow>();
     private static List<Flow> realFlows = new ArrayList<Flow>();
+    private static List<QosPolicy> qospolicys = new ArrayList<QosPolicy>(); 
     private static String IP, PORT = "8080";
     
     /**
@@ -101,7 +109,10 @@ public class FloodlightProvider {
         }
     }   
     
-    public static List<Rule> getRules(){
+    /**
+     * @return Firewall rules
+     */
+    public static List<FirewallRule> getRules(){
         try {
             return RuleJSON.getRules();
         } catch (JSONException | IOException e) {
@@ -109,16 +120,6 @@ public class FloodlightProvider {
             e.printStackTrace();
         }
         return null;
-    }
-    
-    public static List<ACLRule> getACLRules(){
-    	try {
-			return ACLManagerJSON.getACLRules();
-		} catch (IOException | JSONException e) {
-			// TODO 自动生成的 catch 块
-			e.printStackTrace();
-		}
-		return null;
     }
     
     public static String getIP(){

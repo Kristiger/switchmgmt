@@ -14,10 +14,8 @@ import controller.floodlightprovider.FloodlightProvider;
 import controller.util.ErrorCheck;
 import controller.util.JSONException;
 import controller.util.JSONObject;
-
-import model.tools.flowmanager.Flow;
-
-import view.tools.flowmanager.StaticFlowManager;
+import model.overview.Flow;
+import view.StaticFlowManager;
 import view.util.DisplayMessage;
 
 public class FlowManagerPusher {

@@ -1,11 +1,11 @@
-package view.tools.flowmanager;
+package view;
 
 import java.awt.Toolkit;
 import java.io.IOException;
 
+import model.overview.Action;
+import model.overview.Flow;
 import model.overview.Switch;
-import model.tools.flowmanager.Action;
-import model.tools.flowmanager.Flow;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.TableEditor;
@@ -39,7 +39,6 @@ import controller.tools.flowmanager.push.MatchManagerPusher;
 import controller.tools.flowmanager.table.ActionToTable;
 import controller.tools.flowmanager.table.MatchToTable;
 import controller.util.JSONException;
-import view.About;
 import view.util.DisplayMessage;
 
 import org.eclipse.swt.widgets.Combo;

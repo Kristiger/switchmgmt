@@ -9,8 +9,7 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-import model.tools.flowmanager.Flow;
-
+import model.overview.Flow;
 import controller.floodlightprovider.FloodlightProvider;
 import controller.util.Deserializer;
 import controller.util.JSONArray;

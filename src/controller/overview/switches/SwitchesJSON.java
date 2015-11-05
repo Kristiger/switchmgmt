@@ -1,4 +1,4 @@
-package controller.overview.switchesdetailed.json;
+package controller.overview.switches;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -115,7 +115,7 @@ public class SwitchesJSON {
 			sw.setFlows(FlowJSON.getFlows(dpid));
 
 			// Port and Features stats
-			if (!portObj.has("port")){
+			if (portObj == null || !portObj.has("port")){
 				return switches;
 			}
 			JSONArray json = portObj.getJSONArray("port");
@@ -213,7 +213,7 @@ public class SwitchesJSON {
 		}
 
 		// Port and Features stats
-		if (!portObj.has("port")) {
+		if (portObj == null || !portObj.has("port")) {
 			return;
 		}		
 		JSONArray json = portObj.getJSONArray("port");

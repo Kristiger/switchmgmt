@@ -11,7 +11,7 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-import model.tools.flowmanager.Action;
+import model.overview.Action;
 import controller.floodlightprovider.FloodlightProvider;
 import controller.util.Deserializer;
 import controller.util.HexString;

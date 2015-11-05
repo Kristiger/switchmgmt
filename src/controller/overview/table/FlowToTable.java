@@ -3,7 +3,7 @@ package controller.overview.table;
 import java.util.ArrayList;
 import java.util.List;
 
-import model.tools.flowmanager.Flow;
+import model.overview.Flow;
 
 public class FlowToTable {
 

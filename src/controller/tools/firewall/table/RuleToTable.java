@@ -3,13 +3,13 @@ package controller.tools.firewall.table;
 import java.util.ArrayList;
 import java.util.List;
 
+import model.overview.FirewallRule;
 import model.overview.Port;
-import model.tools.firewall.Rule;
 
 public class RuleToTable {
 
 	// This returns a table representation of the specified flow
-	public static String[][] getRuleTableFormat(Rule rule) {
+	public static String[][] getRuleTableFormat(FirewallRule rule) {
 
 		String[][] r = {{ "Rule ID", String.valueOf(rule.getRuleid())},
 				{ "Src MAC", rule.getDl_src(), String.valueOf(rule.isWildcard_dl_src())},
@@ -26,7 +26,7 @@ public class RuleToTable {
 	// This returns a table representation of a new flow
 	public static String[][] getNewRuleTableFormat() {
 
-	    Rule rule = new Rule();
+	    FirewallRule rule = new FirewallRule();
 	    
 	    String[][] r = {{ "Rule ID", "Cannot be set, generated after pushing!"},
                 { "Src MAC", rule.getDl_src()},

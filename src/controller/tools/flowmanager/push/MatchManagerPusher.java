@@ -1,6 +1,6 @@
 package controller.tools.flowmanager.push;
 
-import model.tools.flowmanager.Match;
+import model.overview.Match;
 
 import org.eclipse.swt.widgets.TableItem;
 

@@ -1,13 +1,13 @@
-package view.tools.firewall;
+package view;
 
 import java.awt.Toolkit;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import model.overview.FirewallRule;
 import model.overview.Port;
 import model.overview.Switch;
-import model.tools.firewall.Rule;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.TableEditor;
@@ -39,7 +39,6 @@ import controller.tools.firewall.json.FirewallJSON;
 import controller.tools.firewall.push.FirewallPusher;
 import controller.tools.firewall.table.RuleToTable;
 import controller.util.JSONException;
-import view.About;
 import view.util.DisplayMessage;
 
 import org.eclipse.swt.widgets.Combo;
@@ -54,9 +53,9 @@ public class Firewall {
     protected TableEditor editor;
     final int EDITABLECOLUMN = 1;
     public static Switch currSwitch;
-    public static Rule rule;
+    public static FirewallRule rule;
     protected List<Switch> switches = new ArrayList<Switch>();
-    protected static List<Rule> rules = new ArrayList<Rule>();
+    protected static List<FirewallRule> rules = new ArrayList<FirewallRule>();
     protected static boolean unsavedProgress;
     protected Button btnEnable;
     private static Text name, priority;
@@ -111,7 +110,7 @@ public class Firewall {
 
         rules = FloodlightProvider.getRules();
 
-        for (Rule r : rules) {
+        for (FirewallRule r : rules) {
             new TreeItem(tree_rules, SWT.NONE).setText(String.valueOf(r
                     .getRuleid()));
         }
@@ -138,7 +137,7 @@ public class Firewall {
     public void setupNewRule() {
 
         disposeEditor();
-        rule = new Rule();
+        rule = new FirewallRule();
         table_rule.removeAll();
         name.setText("");
         dpid.setText("");

@@ -1,4 +1,4 @@
-package model.tools.Qos;
+package model.overview;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -8,6 +8,7 @@ public class QosPolicy {
 	private String queuePort;
 	private String qosName;
 	private String switchdpid;
+	private String uuid;
 	
 	private long maxRate;
 	private long minRate;
@@ -26,6 +27,14 @@ public class QosPolicy {
 		
 		this.maxRate = maxRate;
 		this.minRate = minRate;
+	}
+
+	public String getUuid() {
+		return uuid;
+	}
+
+	public void setUuid(String uuid) {
+		this.uuid = uuid;
 	}
 
 	public String getQueuePort() {
@@ -128,27 +137,26 @@ public class QosPolicy {
 		seri.append("ovs-vsctl -- set Port ");
 		seri.append(queuePort);
 		seri.append(" " + qosName + "=@newqos");
-		seri.append(" -- --id=newqos");
+		seri.append(" -- --id=@newqos");
 		seri.append(" create QoS type=linux-htb");
 		
 		if (maxRate != 0)
 			seri.append(" other-config:max-rate=" + maxRate);
 		
 		if (minRate != 0)
-			seri.append(" other-config:in-rate=" + minRate);
+			seri.append(" other-config:min-rate=" + minRate);
 		
 		seri.append(" queues=");
 		
 		Iterator<QosQueue> it = queues.iterator();
 		QosQueue qu;
-		int i = 0;
 		qu = it.next();
-		seri.append(qu.getQueueID() + "=q"+ qu.getQueueID());
+		seri.append(qu.getQueueID() + "=@q"+ qu.getQueueID());
 		
 		while(it.hasNext()){
 			seri.append(",");
 			qu = it.next();
-			seri.append(qu.getQueueID() + "=q"+ qu.getQueueID());
+			seri.append(qu.getQueueID() + "=@q"+ qu.getQueueID());
 		}
 		
 		it = null;

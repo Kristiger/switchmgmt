@@ -1,6 +1,6 @@
-package model.tools.firewall;
+package model.overview;
 
-public class Rule {
+public class FirewallRule {
 
 	/*A rule like this:
 	 * [	{	"ruleid":-1053548478,			"dpid":"00:00:00:00:00:00:00:01",
@@ -30,7 +30,7 @@ public class Rule {
             wildcard_nw_dst, wildcard_nw_proto, wildcard_tp_src,
             wildcard_tp_dst;
 
-    public Rule() {
+    public FirewallRule() {
         this.name = "";
         this.dpid = "";
         this.in_port = "";
@@ -373,7 +373,7 @@ public class Rule {
         return serial;
     }
     
-    public boolean equals(Rule other){
+    public boolean equals(FirewallRule other){
         return this.serialize().equals(other.serialize());
     }
     

@@ -32,8 +32,6 @@ import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeItem;
 import org.eclipse.wb.swt.layout.grouplayout.GroupLayout;
 
-import view.tools.flowmanager.StaticFlowManager;
-import view.tools.firewall.Firewall;
 import controller.floodlightprovider.FloodlightProvider;
 import controller.overview.json.ControllerJSON;
 import controller.overview.table.DeviceToTable;
@@ -51,7 +49,7 @@ public class Gui {
 	private Table switches_table;
 	private Composite controllerOverview, detailed_switch;
 	private Label lblInsertHostname, lblInsertHealthy, lblInsertJvmMemory,
-	lblInsertModules, lblSn, lblHardware, lblSoftware, lblManufacturer;
+			lblInsertModules, lblSn, lblHardware, lblSoftware, lblManufacturer;
 	private TreeItem trtmSwitches, trtmDevices;
 	private static Switch currSwitch;
 	private static boolean switchesLoaded;
@@ -68,7 +66,7 @@ public class Gui {
 
 	public void open() {
 		display = Display.getDefault();
-		
+
 		createContents();
 		shell.open();
 		shell.layout();
@@ -190,7 +188,8 @@ public class Gui {
 		loadSwitchesData();
 		populateSwitchesTree();
 
-		for (String[] data : SwitchToTable.getSwitchTableFormat(FloodlightProvider.getSwitches(true))) {
+		for (String[] data : SwitchToTable
+				.getSwitchTableFormat(FloodlightProvider.getSwitches(true))) {
 			new TableItem(switches_table, SWT.NONE).setText(data);
 		}
 
@@ -204,19 +203,19 @@ public class Gui {
 	 *            The switch we wish to update
 	 */
 	private void loadSwitchData(Switch sw) {
-		
+
 		table_ports.removeAll();
 		table_flows.removeAll();
 		// Set the current switch the to switch selected
 		currSwitch = sw;
 
 		sw = FloodlightProvider.getSwitch(sw.getDpid(), true);
-		
+
 		for (String[] data : FlowToTable.getFlowTableFormat(sw.getFlows())) {
 			new TableItem(table_flows, SWT.NONE).setText(data);
 		}
 		table_flows.getColumn(3).setWidth(122);
-		
+
 		for (String[] data : PortToTable.getPortTableFormat(sw.getPorts())) {
 			new TableItem(table_ports, SWT.NONE).setText(data);
 		}
@@ -236,9 +235,10 @@ public class Gui {
 
 		shell = new Shell();
 		shell.setSize(winWidth, winHeight);
-        shell.setLocation(new Point(
-        		Toolkit.getDefaultToolkit().getScreenSize().width/2 - winWidth/2, 
-        		Toolkit.getDefaultToolkit().getScreenSize().height/2 - winHeight/2));
+		shell.setLocation(new Point(
+				Toolkit.getDefaultToolkit().getScreenSize().width / 2
+						- winWidth / 2, Toolkit.getDefaultToolkit()
+						.getScreenSize().height / 2 - winHeight / 2));
 		shell.setText("Avior");
 
 		Menu menu = new Menu(shell, SWT.BAR);
@@ -278,13 +278,13 @@ public class Gui {
 		GroupLayout gl_shell = new GroupLayout(shell);
 		gl_shell.setHorizontalGroup(gl_shell.createParallelGroup(
 				GroupLayout.TRAILING).add(GroupLayout.LEADING, composite,
-						GroupLayout.DEFAULT_SIZE, 1198, Short.MAX_VALUE));
+				GroupLayout.DEFAULT_SIZE, 1198, Short.MAX_VALUE));
 		gl_shell.setVerticalGroup(gl_shell.createParallelGroup(
 				GroupLayout.LEADING).add(
-						gl_shell.createSequentialGroup()
+				gl_shell.createSequentialGroup()
 						.add(composite, GroupLayout.PREFERRED_SIZE, 752,
 								GroupLayout.PREFERRED_SIZE)
-								.addContainerGap(36, Short.MAX_VALUE)));
+						.addContainerGap(36, Short.MAX_VALUE)));
 		composite.setLayout(new FormLayout());
 
 		final Composite composite_1 = new Composite(composite, SWT.NONE);
@@ -339,20 +339,36 @@ public class Gui {
 					}
 
 					// Handler for Static Flow Manager tree item
-					else if (selection[0].getText().equals("Static Flow Manager")) {
+					else if (selection[0].getText().equals(
+							"Static Flow Manager")) {
 						new StaticFlowManager();
 					}
 
 					// Handler for Flow Manager tree item
 					else if (selection[0].getText().equals("Firewall")) {
 						new Firewall();
+					} else if (selection[0].getText().equals("QoS")) {
+
+						try {
+							AddQos shell1 = new AddQos(display);
+							shell1.open();
+							shell1.layout();
+							while (!shell1.isDisposed()) {
+								if (!display.readAndDispatch()) {
+									display.sleep();
+								}
+							}
+						} catch (Exception e1) {
+							e1.printStackTrace();
+						}
 					}
-					
+
 					// Handler for Firewall tree item
-					/*else if (selection[0].getText().equals("Firewall")) {
-						System.out.println("Feature not available yet!");
-						// new FirewallManager();
-					}*/ else if (selection[0].getText().length() == 23) {
+					/*
+					 * else if (selection[0].getText().equals("Firewall")) {
+					 * System.out.println("Feature not available yet!"); // new
+					 * FirewallManager(); }
+					 */else if (selection[0].getText().length() == 23) {
 						for (Switch sw : FloodlightProvider.getSwitches(false)) {
 							if (sw.getDpid().equals(selection[0].getText())) {
 								loadSwitchData(sw);
@@ -527,11 +543,11 @@ public class Gui {
 
 		TableColumn tblclmnnum = new TableColumn(table_ports, SWT.NONE);
 		tblclmnnum.setWidth(50);
-		tblclmnnum.setText("#");
+		tblclmnnum.setText("Port");
 
-		TableColumn tblclmnname = new TableColumn(table_ports, SWT.NONE);
+		/*TableColumn tblclmnname = new TableColumn(table_ports, SWT.NONE);
 		tblclmnname.setWidth(200);
-		tblclmnname.setText("Link Status");
+		tblclmnname.setText("Link Status");*/
 
 		TableColumn tblclmnlink = new TableColumn(table_ports, SWT.NONE);
 		tblclmnlink.setWidth(100);
@@ -556,7 +572,7 @@ public class Gui {
 		TableColumn tblclmnerrors = new TableColumn(table_ports, SWT.NONE);
 		tblclmnerrors.setWidth(100);
 		tblclmnerrors.setText("Errors");
-		
+
 		table_flows = new Table(detailed_switch, SWT.BORDER
 				| SWT.FULL_SELECTION);
 		table_flows.setBounds(10, 412, 947, 288);
@@ -631,7 +647,8 @@ public class Gui {
 		btnManageFlows.setText("Manage Flows");
 		btnManageFlows.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
-				new StaticFlowManager(FloodlightProvider.getSwitches(false).indexOf(currSwitch));
+				new StaticFlowManager(FloodlightProvider.getSwitches(false)
+						.indexOf(currSwitch));
 			}
 		});
 
@@ -640,6 +657,6 @@ public class Gui {
 		composite_1.layout(true);
 
 		shell.setLayout(gl_shell);
-		
+
 	}
 }

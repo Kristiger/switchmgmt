@@ -8,8 +8,7 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-import model.tools.firewall.Rule;
-
+import model.overview.FirewallRule;
 import controller.floodlightprovider.FloodlightProvider;
 import controller.util.Deserializer;
 import controller.util.JSONArray;
@@ -24,10 +23,10 @@ public class RuleJSON {
 	private static JSONArray json;
 	private static Future<Object> future;
 
-	public static List<Rule> getRules()
+	public static List<FirewallRule> getRules()
 			throws JSONException, IOException {
 
-		List<Rule> rules = new ArrayList<Rule>();
+		List<FirewallRule> rules = new ArrayList<FirewallRule>();
 		// Get the array of actions
 		future = Deserializer.readJsonArrayFromURL("http://" + IP
 				+ ":" + PORT + "/wm/firewall/rules/json");
@@ -46,7 +45,7 @@ public class RuleJSON {
 		
 		for (int i = 0; i < json.length(); i++) {
 			obj = json.getJSONObject(i);
-			Rule rule = new Rule();
+			FirewallRule rule = new FirewallRule();
 			rule.setRuleid(obj.getInt("ruleid"));
 			rule.setDpid(obj.getString("dpid"));
 			rule.setIn_port(String.valueOf((obj.getInt("in_port"))));

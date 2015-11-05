@@ -1,4 +1,4 @@
-package controller.overview.switchesdetailed.json;
+package controller.overview.switches;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -8,8 +8,7 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-import model.tools.flowmanager.Flow;
-
+import model.overview.Flow;
 import controller.floodlightprovider.FloodlightProvider;
 import controller.util.Deserializer;
 import controller.util.FormatLong;
@@ -24,38 +23,50 @@ public class FlowJSON {
 	static JSONArray json;
 	static Future<Object> future;
 
-	// This parses JSON from the restAPI to get all the flows from a specified switch, meant for the controller overview
+	// This parses JSON from the restAPI to get all the flows from a specified
+	// switch, meant for the controller overview
 	public static List<Flow> getFlows(String dpid) throws IOException,
 			JSONException {
 
 		List<Flow> flows = new ArrayList<Flow>();
-		// If JSONObject is not supplied, get it. 
-			try {
-				obj = (JSONObject) Deserializer.readJsonObjectFromURL("http://" + IP
-						+ ":8080/wm/core/switch/" + dpid + "/flow/json").get(5, TimeUnit.SECONDS);
-			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (ExecutionException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (TimeoutException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		if(obj.has("flows"))
+		// If JSONObject is not supplied, get it.
+		try {
+			obj = (JSONObject) Deserializer.readJsonObjectFromURL(
+					"http://" + IP + ":8080/wm/core/switch/" + dpid
+							+ "/flow/json").get(5, TimeUnit.SECONDS);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (ExecutionException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (TimeoutException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		if (obj.has("flows"))
 			json = obj.getJSONArray("flows");
-		else{
+		else {
 			json = null;
 			return flows;
 		}
-		
-		if(json.length() != 0){
+
+		if (json.length() != 0) {
 			for (int i = 0; i < json.length(); i++) {
 				obj = (JSONObject) json.get(i);
-				Flow flow = new Flow(dpid);				
-				flow.setActions(ActionJSON.getActions(obj.getJSONObject("actions")));
-				
+				Flow flow = new Flow(dpid);
+
+				if (obj.has("actions"))
+					flow.setActions(ActionJSON.getActions(obj
+							.getJSONObject("actions")));
+
+				if (obj.has("instructions"))
+					flow.setActions(ActionJSON.getOF13Actions(obj
+							.getJSONObject("instructions")));
+
+				if (obj.getJSONObject("match").length() == 0)
+					continue;
+
 				flow.setMatch(MatchJSON.getMatch(obj.getJSONObject("match")));
 				flow.setPriority(String.valueOf(obj.getInt("priority")));
 				if (obj.getInt("idleTimeoutSec") != 0)
@@ -67,7 +78,8 @@ public class FlowJSON {
 				flow.setDurationSeconds(String.valueOf(obj
 						.getInt("durationSeconds")));
 				flow.setPacketCount(String.valueOf(obj.getInt("packetCount")));
-				flow.setByteCount(FormatLong.formatBytes(obj.getLong("byteCount"),false,false));
+				flow.setByteCount(FormatLong.formatBytes(
+						obj.getLong("byteCount"), false, false));
 				flows.add(flow);
 			}
 		}

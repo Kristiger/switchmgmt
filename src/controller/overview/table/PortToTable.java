@@ -17,7 +17,7 @@ public class PortToTable {
 		for(Port port : ports){
 			List<String> stringList = new ArrayList<String>();
 			stringList.add(port.getPortNumber());
-			stringList.add(port.getStatus());
+			//stringList.add(port.getStatus());
 			stringList.add(port.getTransmitBytes());
 			stringList.add(port.getReceiveBytes());
 			stringList.add(port.getTransmitPackets());

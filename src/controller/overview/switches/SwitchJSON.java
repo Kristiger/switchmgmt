@@ -1,4 +1,4 @@
-package controller.overview.switchesdetailed.json;
+package controller.overview.switches;
 
 import java.util.HashMap;
 import java.util.Map;

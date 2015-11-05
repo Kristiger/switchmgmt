@@ -2,8 +2,8 @@ package controller.tools.flowmanager.push;
 
 import java.util.List;
 
-import model.tools.flowmanager.Action;
-import model.tools.flowmanager.Flow;
+import model.overview.Action;
+import model.overview.Flow;
 
 import org.eclipse.swt.widgets.TableItem;
 
