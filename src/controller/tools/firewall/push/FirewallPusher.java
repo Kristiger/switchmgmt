@@ -9,6 +9,8 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.util.List;
 
+import model.overview.FirewallRule;
+
 import org.eclipse.swt.widgets.TableItem;
 
 import view.Firewall;
@@ -17,7 +19,6 @@ import controller.floodlightprovider.FloodlightProvider;
 import controller.util.ErrorCheck;
 import controller.util.JSONException;
 import controller.util.JSONObject;
-import model.overview.FirewallRule;
 
 public class FirewallPusher {
     

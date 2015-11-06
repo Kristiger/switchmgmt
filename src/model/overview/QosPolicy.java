@@ -81,11 +81,15 @@ public class QosPolicy {
 		queues.add(queue);
 	}
 	
-	public QosQueue getQueue(int index){
-		if(index >= queues.size()){
-			return null;
+	public QosQueue getQueue(String queueid){
+		Iterator<QosQueue> it = queues.iterator();
+		QosQueue queue = null;
+		while(it.hasNext()){
+			queue = it.next();
+			if(queue.getQueueID() == Integer.valueOf(queueid))
+				return queue;
 		}
-		return queues.get(index);
+		return null;
 	}
 	
 	public List<QosQueue> getQueues() {

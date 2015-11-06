@@ -59,11 +59,9 @@ public class SSHConnector {
 					break;
 				sb.append(line);
 				sb.append("\n");
-				//System.out.println(line);
 			}
 	
 			/* Show exit status, if available (otherwise "null") */
-			
 			//System.out.println("ExitCode: " + sess.getExitStatus());
 			
 		} catch (IOException e) {

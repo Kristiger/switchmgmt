@@ -5,10 +5,12 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import model.overview.Device;
 import model.overview.Port;
 import model.overview.QosPolicy;
 import model.overview.QosQueue;
 import model.overview.Switch;
+import model.overview.VMData;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -42,15 +44,16 @@ public class AddQos extends Shell {
 	private Tree treeQueues;
 	private Tree treePort;
 
+	private List<VMData> vms;
 	private List<QosPolicy> qospolicies;
-	private QosPolicy qospolicy;
-	private QosQueue queue;
-	private static Port currPort;
-	private static Switch currSwitch;
-	private int currSwitchIndex, currPortIndex;
+	private QosPolicy qospolicy = null;
+	private QosQueue queue = null;
+	private static Port currPort = null;
+	private static Switch currSwitch = null;
+	private int currSwitchIndex = -1, currPortIndex = -1;
 	private static boolean unsavedprogress, newqueue, policyset;
 	private static int queueNumber = 0;
-	
+
 	/**
 	 * Create the shell.
 	 * 
@@ -60,20 +63,9 @@ public class AddQos extends Shell {
 		super(display);
 		createContents();
 		populateSwitchTree();
+		vms = FloodlightProvider.getVms();
+		qospolicies = FloodlightProvider.getQospolicys();
 	}
-
-	/**
-	 * Launch the application.
-	 * 
-	 * @param args
-	 */
-	/*
-	 * public static void main(String args[]) { try { Display display =
-	 * Display.getDefault(); AddQos shell = new AddQos(display); shell.open();
-	 * shell.layout(); while (!shell.isDisposed()) { if
-	 * (!display.readAndDispatch()) { display.sleep(); } } } catch (Exception e)
-	 * { e.printStackTrace(); } }
-	 */
 
 	/*
 	 * public void open(){ try{ Display display = Display.getDefault(); AddQos
@@ -111,8 +103,8 @@ public class AddQos extends Shell {
 		} else {
 			new TreeItem(treeSwitches, SWT.NONE).setText("None");
 		}
-		
-		if (!FloodlightProvider.getQospolicys().isEmpty()){
+
+		if (!FloodlightProvider.getQospolicys().isEmpty()) {
 			qospolicies = FloodlightProvider.getQospolicys();
 		}
 	}
@@ -175,21 +167,27 @@ public class AddQos extends Shell {
 
 		treePort.select(treePort.getItem(currPortIndex));
 
-		if (qospolicy != null
-				&& qospolicy.getSwitchdpid().equals(currSwitch.getDpid())
-				&& qospolicy.getQueuePort().equals(currPort.getPortNumber())) {
-
+		if (qospolicyExist()) {
 			textQueueName.setText(qospolicy.getQosName());
 			textPortMax.setText(String.valueOf(qospolicy.getMaxRate()));
 			textPortMin.setText(String.valueOf(qospolicy.getMinRate()));
-			// means the policy data haven't been totally set
-			policyset = false;
 			populateQueueTree(index);
-		} else if (qospolicy == null) {
-			return;
-		} else {
-
 		}
+	}
+
+	private boolean qospolicyExist() {
+		// TODO Auto-generated method stub
+		Iterator<QosPolicy> it = qospolicies.iterator();
+		while (it.hasNext()) {
+			qospolicy = it.next();
+			if (qospolicy.getSwitchdpid().equals(currSwitch.getDpid())
+					&& qospolicy.getQueuePort()
+							.equals(currPort.getPortNumber())) {
+				return true;
+			}
+		}
+		qospolicy = null;
+		return false;
 	}
 
 	private void populateQueueTree(int index) {
@@ -211,13 +209,13 @@ public class AddQos extends Shell {
 		}
 	}
 
-	private void populateQueueView(int index) {
+	private void populateQueueView(String queueid) {
 
 		textQueueID.setText("");
 		textQueueMax.setText("");
 		textQueueMin.setText("");
 
-		queue = qospolicy.getQueue(index);
+		queue = qospolicy.getQueue(queueid);
 		if (queue != null) {
 			textQueueID.setText(String.valueOf(queue.getQueueID()));
 			textQueueMax.setText(String.valueOf(queue.getMaxRate()));
@@ -226,7 +224,6 @@ public class AddQos extends Shell {
 	}
 
 	private void setupNewPolicy() {
-
 		if (currSwitch == null || currPort == null) {
 			DisplayMessage.displayError(this, "Please choose a switch port.");
 			return;
@@ -241,26 +238,34 @@ public class AddQos extends Shell {
 				unsavedprogress = false;
 				setupNewPolicy();
 			}
-		} else if (qospolicy == null
-				|| !(qospolicy.getSwitchdpid().equals(currSwitch.getDpid()) && qospolicy
-						.getQueuePort().equals(currPort.getPortNumber()))) {
+		} else if (qospolicyExist()) {
+			DisplayMessage.displayError(this, "Policy exists, just add queue");
+		} else if (qospolicy == null) {
 			qospolicy = new QosPolicy();
 			qospolicy.setSwitchdpid(currSwitch.getDpid());
 			qospolicy.setQueuePort(currPort.getPortNumber());
+
+			// set qospolicy port
+			Iterator<VMData> it = vms.iterator();
+			VMData vm = null;
+			while (it.hasNext()) {
+				vm = it.next();
+				if (vm.getVmSwPort().equals(currPort.getPortNumber())) {
+					if (!vm.getVmOvsPort().equals("none"))
+						qospolicy.setQueuePort(vm.getVmOvsPort());
+					else {
+						DisplayMessage
+								.displayError(this,
+										"Havent get the port attached to physicalswitch");
+					}
+					return;
+				}
+			}
 			unsavedprogress = true;
 		}
 	}
 
 	private void setupNewQueues() {
-
-		// set policy name and max & min rate
-		if (qospolicy != null && policyset == false) {
-			qospolicy.setQosName(textQueueName.getText());
-			qospolicy.setMaxRate(Integer.valueOf(textPortMax.getText()));
-			qospolicy.setMinRate(Integer.valueOf(textPortMin.getText()));
-			policyset = true;
-		}
-
 		// newqueue true means there has been a new queue, no need to create
 		if (qospolicy != null && newqueue == false) {
 			queue = new QosQueue();
@@ -268,22 +273,19 @@ public class AddQos extends Shell {
 			textQueueMin.setText("");
 			textQueueID.setText(String.valueOf(queueNumber));
 			newqueue = true;
-		} else if (newqueue == true) {
-			int style = SWT.APPLICATION_MODAL | SWT.YES | SWT.NO;
-			MessageBox messageBox = new MessageBox(this, style);
-			messageBox.setText("Are you sure?!");
-			messageBox
-					.setMessage("Are you sure you wish to exit the flow manager? "
-							+ "Any unsaved changes will not be pushed.");
-			if (messageBox.open() == SWT.YES) {
-				newqueue = false;
-				setupNewQueues();
-			}
 		}
 	}
 
 	private void addToPolicy() {
 		// TODO Auto-generated method stub
+
+		// set policy name and max & min rate !!!
+		if (qospolicy != null) {
+			qospolicy.setQosName(textQueueName.getText());
+			qospolicy.setMaxRate(Integer.valueOf(textPortMax.getText()));
+			qospolicy.setMinRate(Integer.valueOf(textPortMin.getText()));
+		}
+
 		// there is a new queue
 		if (newqueue == true) {
 			try {
@@ -300,14 +302,13 @@ public class AddQos extends Shell {
 			queueNumber++;
 			newqueue = false;
 		} else {
-			DisplayMessage.displayError(this, "you have saved this queue.");
+			DisplayMessage.displayError(this, "Havnet create new queue");
 		}
 		populateQueueTree(currPortIndex);
 	}
 
 	private void addToRemote() {
 		// TODO Auto-generated method stub
-
 		if (qospolicy == null) {
 			return;
 		} else if (qospolicy.getQueues().size() == 0) {
@@ -327,10 +328,12 @@ public class AddQos extends Shell {
 			qospolicy.setUuid(uuids[0]);
 			System.out.println(uuids[0]);
 			for (int i = 1; i < uuids.length; i++) {
-				qospolicy.getQueue(i - 1).setUuid(uuids[i]);
+				// need to set uuid to queue, so need to store queues created
+				// this time.
+				// qospolicy.getQueue(i - 1).setUuid(uuids[i]);
 				System.out.println(uuids[i]);
 			}
-			DisplayMessage.displayError(this, "uuid received");
+			FloodlightProvider.addQospolicy(qospolicy);
 		} else {
 			DisplayMessage.displayError(this, "No uuids received.");
 		}
@@ -347,7 +350,6 @@ public class AddQos extends Shell {
 						- winWidth / 2, Toolkit.getDefaultToolkit()
 						.getScreenSize().height / 2 - winHeight / 2));
 		treeSwitches = new Tree(this, SWT.BORDER);
-		// treeSwitches.setHeaderVisible(true);
 		treeSwitches.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
@@ -363,7 +365,6 @@ public class AddQos extends Shell {
 		treeSwitches.setBounds(10, 10, 188, 141);
 
 		treePort = new Tree(this, SWT.BORDER);
-		// treePort.setHeaderVisible(true);
 		treePort.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
@@ -433,7 +434,6 @@ public class AddQos extends Shell {
 		composite_2.setBounds(203, 102, 129, 214);
 
 		treeQueues = new Tree(composite_2, SWT.BORDER);
-		// treeQueues.setHeaderVisible(true);
 		treeQueues.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
@@ -441,7 +441,7 @@ public class AddQos extends Shell {
 				if (queue_selection.length != 0) {
 					if (queue_selection[0].getText().equals("None"))
 						return;
-					populateQueueView(treeQueues.indexOf(queue_selection[0]));
+					populateQueueView(queue_selection[0].getText());
 				}
 			}
 		});

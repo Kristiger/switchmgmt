@@ -368,7 +368,8 @@ public class Gui {
 					 * else if (selection[0].getText().equals("Firewall")) {
 					 * System.out.println("Feature not available yet!"); // new
 					 * FirewallManager(); }
-					 */else if (selection[0].getText().length() == 23) {
+					 */
+					else if (selection[0].getText().length() == 23) {
 						for (Switch sw : FloodlightProvider.getSwitches(false)) {
 							if (sw.getDpid().equals(selection[0].getText())) {
 								loadSwitchData(sw);
@@ -545,9 +546,10 @@ public class Gui {
 		tblclmnnum.setWidth(50);
 		tblclmnnum.setText("Port");
 
-		/*TableColumn tblclmnname = new TableColumn(table_ports, SWT.NONE);
-		tblclmnname.setWidth(200);
-		tblclmnname.setText("Link Status");*/
+		/*
+		 * TableColumn tblclmnname = new TableColumn(table_ports, SWT.NONE);
+		 * tblclmnname.setWidth(200); tblclmnname.setText("Link Status");
+		 */
 
 		TableColumn tblclmnlink = new TableColumn(table_ports, SWT.NONE);
 		tblclmnlink.setWidth(100);

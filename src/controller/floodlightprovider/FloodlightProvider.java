@@ -2,14 +2,17 @@ package controller.floodlightprovider;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import model.overview.FirewallRule;
 import model.overview.Flow;
 import model.overview.QosPolicy;
 import model.overview.Switch;
+import model.overview.VMData;
 import controller.overview.switches.FlowJSON;
 import controller.overview.switches.SwitchesJSON;
+import controller.overview.vms.VMDataGetter;
 import controller.tools.firewall.json.RuleJSON;
 import controller.tools.flowmanager.json.StaticFlowManagerJSON;
 import controller.util.JSONException;
@@ -20,6 +23,8 @@ public class FloodlightProvider {
 	private static List<Flow> staticFlows = new ArrayList<Flow>();
 	private static List<Flow> realFlows = new ArrayList<Flow>();
 	private static List<QosPolicy> qospolicies = new ArrayList<QosPolicy>();
+	private static List<VMData> vms = new ArrayList<VMData>();
+	
 	private static String IP, PORT = "8080";
 
 	/**
@@ -40,7 +45,6 @@ public class FloodlightProvider {
 	}
 
 	public static List<String> getSwitchDpids() {
-
 		List<String> dpids = new ArrayList<String>();
 		for (Switch sw : switches) {
 			dpids.add(sw.getDpid());
@@ -97,15 +101,7 @@ public class FloodlightProvider {
 		}
 	}
 
-	/*
-	 * Since once the application is disposed, policies stored will lose,
-	 * and next time can be found except from xen, it should be stored, 
-	 * and when enqueue, check if it exists.
-	 * cmd:ovs-vsctl list <port> | grep qos == <queue.uuid>
-	 */
-	private void getQosPolicysFromDB(){
-		
-	}
+	
 	
 	/**
 	 * @return policys for the ports attached to switches
@@ -127,7 +123,7 @@ public class FloodlightProvider {
 		qospolicies.add(qospolicy);
 	}
 
-	public static boolean modifyQospolicy(QosPolicy qospolicy) {
+	public static boolean updateQospolicy(QosPolicy qospolicy) {
 		for (QosPolicy qp : qospolicies) {
 			if (qp.getSwitchdpid().equals(qospolicy.getSwitchdpid())
 					&& qp.getQueuePort().equals(qospolicy.getQueuePort())) {
@@ -139,6 +135,11 @@ public class FloodlightProvider {
 		return false;
 	}
 
+	public static List<VMData> getVms() {
+		vms = VMDataGetter.getVms();
+		return vms;
+	}
+	
 	/**
 	 * @return Firewall rules
 	 */
