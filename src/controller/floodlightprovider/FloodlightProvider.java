@@ -101,8 +101,6 @@ public class FloodlightProvider {
 		}
 	}
 
-	
-	
 	/**
 	 * @return policys for the ports attached to switches
 	 */
@@ -123,21 +121,25 @@ public class FloodlightProvider {
 		qospolicies.add(qospolicy);
 	}
 
-	public static boolean updateQospolicy(QosPolicy qospolicy) {
-		for (QosPolicy qp : qospolicies) {
-			if (qp.getSwitchdpid().equals(qospolicy.getSwitchdpid())
-					&& qp.getQueuePort().equals(qospolicy.getQueuePort())) {
-				//change the reference of the qospolicy in the list;
-				qp = qospolicy;
-				return true;
-			}
+	public static List<VMData> getVms(boolean update) {
+		if(update){
+			VMDataGetter.updateVMDatas();
 		}
-		return false;
-	}
-
-	public static List<VMData> getVms() {
-		vms = VMDataGetter.getVms();
+		vms = VMDataGetter.getVmDatas();
 		return vms;
+	}
+	
+	public static VMData getVM(String swport){
+		if(vms.size() == 0)
+			vms = getVms(false);
+		Iterator<VMData> it = vms.iterator();
+		VMData vm = null;
+		while(it.hasNext()){
+			vm = it.next();
+			if(vm.getVmSwPort().equals(swport))
+				return vm;
+		}
+		return null;
 	}
 	
 	/**

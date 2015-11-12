@@ -7,6 +7,12 @@ public class QosQueue {
 	private long minRate;
 	private long maxRate;
 	
+	public QosQueue(int queueID, long minRate, long maxRate){
+		this.queueID = queueID;
+		this.minRate = minRate;
+		this.maxRate = maxRate;
+	}
+	
 	public String getUuid() {
 		return uuid;
 	}

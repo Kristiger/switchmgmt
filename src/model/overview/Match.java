@@ -3,21 +3,22 @@ package model.overview;
 public class Match {
 
 	/*
-	 *  in_port eth_type eth_src eth_dst eth_vlan_vid eth_vlan_pcp ip_proto ipv4_src ipv4_dst
-	 *  ipv6_src ipv6_dst ipv6_label ip_tos ip_ecn ip_dscp tp_src tp_dst udp_src udp_dst 
-	 *  tcp_src tcp_dst sctp_src sctp_dst icmpv4_type icmpv4_code icmpv6_type icmpv6_code 
-	 *  ipv6_nd_ssl ipv6_nd_ttl ipv6_nd_target arp_opcode arp_sha arp_tha arp_spa arp_tpa 
-	 *  mpls_label mpls_tc mpls_bos tunnel_id metadata
+	 * in_port eth_type eth_src eth_dst eth_vlan_vid eth_vlan_pcp ip_proto
+	 * ipv4_src ipv4_dst ipv6_src ipv6_dst ipv6_label ip_tos ip_ecn ip_dscp
+	 * tp_src tp_dst udp_src udp_dst tcp_src tcp_dst sctp_src sctp_dst
+	 * icmpv4_type icmpv4_code icmpv6_type icmpv6_code ipv6_nd_ssl ipv6_nd_ttl
+	 * ipv6_nd_target arp_opcode arp_sha arp_tha arp_spa arp_tpa mpls_label
+	 * mpls_tc mpls_bos tunnel_id metadata
 	 */
 	String dataLayerDestination, dataLayerSource, dataLayerType, dataLayerVLAN,
 			dataLayerPCP, inputPort, networkDestination,
 			networkDestinationMaskLength, networkProtocol, networkSource,
 			networkSourceMaskLength, networkTypeOfService,
 			transportDestination, transportSource, wildcards;
-	
-	String ipProto, tcpSource, tcpDestination, udpSource, udpDestination, 
-			stcpSource, stcpDestination, icmpv4Type, icmpv4Code, mplsLable, mplsTc,
-			mplsBos, tunnelId, metadata;
+
+	String ipProto, tcpSource, tcpDestination, udpSource, udpDestination,
+			stcpSource, stcpDestination, icmpv4Type, icmpv4Code, mplsLable,
+			mplsTc, mplsBos, tunnelId, metadata;
 
 	public Match() {
 
@@ -167,31 +168,48 @@ public class Match {
 					+ "\"");
 		}
 		if (this.inputPort != null) {
-			serial = serial.concat(",\"in_port\":\"" + this.inputPort
+			serial = serial.concat(",\"in_port\":\"" + this.inputPort + "\"");
+		}
+		if (this.networkSource != null) {
+			serial = serial.concat(",\"ipv4_src\":\"" + this.networkSource
 					+ "\"");
 		}
 		if (this.networkDestination != null) {
 			serial = serial.concat(",\"ipv4_dst\":\"" + this.networkDestination
 					+ "\"");
 		}
-		if (this.networkSource != null) {
-			serial = serial
-					.concat(",\"ipv4_src\":\"" + this.networkSource + "\"");
+		if (this.tcpSource != null) {
+			serial = serial.concat(",\"tcp_src\":\"" + this.tcpSource + "\"");
+		}
+		if (this.tcpDestination != null) {
+			serial = serial.concat(",\"tcp_dst\":\"" + this.tcpDestination
+					+ "\"");
+		}
+		if (this.udpSource != null) {
+			serial = serial.concat(",\"udp_src\":\"" + this.udpSource + "\"");
+		}
+		if (this.udpDestination != null) {
+			serial = serial.concat(",\"udp_dst\":\"" + this.udpDestination
+					+ "\"");
 		}
 		if (this.networkTypeOfService != null) {
-			serial = serial.concat(",\"ip_tos\":\""
-					+ this.networkTypeOfService + "\"");
+			serial = serial.concat(",\"ip_tos\":\"" + this.networkTypeOfService
+					+ "\"");
+		}
+		if (this.networkProtocol != null) {
+			serial = serial.concat(",\"nw_proto\":\"" + this.networkProtocol
+					+ "\"");
 		}
 		if (this.transportDestination != null) {
-			serial = serial.concat(",\"tp_dst\":\""
-					+ this.transportDestination + "\"");
+			serial = serial.concat(",\"tp_dst\":\"" + this.transportDestination
+					+ "\"");
 		}
 		if (this.transportSource != null) {
 			serial = serial.concat(",\"tp_src\":\"" + this.transportSource
 					+ "\"");
 		}
-		//if (this.wildcards != null) {
-		//	serial = serial.concat(",\"wildcards\":\"" + this.wildcards + "\"");
+		// if (this.wildcards != null) {
+		// serial = serial.concat(",\"wildcards\":\"" + this.wildcards + "\"");
 		// This is not able to be set by the user yet
 		// if(!this.networkDestinationMaskLength.isEmpty())
 		// if(serial.length() > 5)
@@ -206,66 +224,87 @@ public class Match {
 		// this.networkSourceMaskLength + "\"");
 		return serial;
 	}
-	
+
 	@Override
 	public String toString() {
 		String serial = "";
 		if (this.dataLayerSource != null) {
-			if(serial.length() > 5)
-			serial = serial.concat(", ");
+			if (serial.length() > 5)
+				serial = serial.concat(", ");
 			serial = serial.concat("src-mac:" + this.dataLayerSource);
 		}
 		if (this.dataLayerDestination != null) {
-			if(serial.length() > 5)
+			if (serial.length() > 5)
 				serial = serial.concat(", ");
-			serial = serial.concat("dst-mac:"
-					+ this.dataLayerDestination);
+			serial = serial.concat("dst-mac:" + this.dataLayerDestination);
 		}
 		if (this.dataLayerType != null) {
-			if(serial.length() > 5)
+			if (serial.length() > 5)
 				serial = serial.concat(", ");
 			serial = serial.concat("ether-type:" + this.dataLayerType);
 		}
 		if (this.dataLayerVLAN != null) {
-			if(serial.length() > 5)
+			if (serial.length() > 5)
 				serial = serial.concat(", ");
 			serial = serial.concat("vlan-id:" + this.dataLayerVLAN);
 		}
 		if (this.dataLayerPCP != null) {
-			if(serial.length() > 5)
+			if (serial.length() > 5)
 				serial = serial.concat(", ");
 			serial = serial.concat("vlan-priority:" + this.dataLayerPCP);
 		}
 		if (this.inputPort != null) {
-			if(serial.length() > 5)
+			if (serial.length() > 5)
 				serial = serial.concat(", ");
 			serial = serial.concat("port:" + this.inputPort);
 		}
 		if (this.networkDestination != null) {
-			if(serial.length() > 5)
+			if (serial.length() > 5)
 				serial = serial.concat(", ");
 			serial = serial.concat("dst-ip:" + this.networkDestination);
 		}
 		if (this.networkSource != null) {
-			if(serial.length() > 5)
+			if (serial.length() > 5)
 				serial = serial.concat(", ");
-			serial = serial
-					.concat("src-ip:" + this.networkSource);
+			serial = serial.concat("src-ip:" + this.networkSource);
 		}
 		if (this.networkTypeOfService != null) {
-			if(serial.length() > 5)
+			if (serial.length() > 5)
 				serial = serial.concat(", ");
-			serial = serial.concat("tos-bits:"
-					+ this.networkTypeOfService);
+			serial = serial.concat("tos-bits:" + this.networkTypeOfService);
+		}
+		if(this.networkProtocol != null){
+			if (serial.length() > 5)
+				serial = serial.concat(", ");
+			serial = serial.concat("ip-proto:" + this.networkProtocol);
+		}
+		if(this.tcpSource != null){
+			if (serial.length() > 5)
+				serial = serial.concat(", ");
+			serial = serial.concat("tcp-src:" + this.tcpSource);
+		}
+		if(this.tcpDestination != null){
+			if (serial.length() > 5)
+				serial = serial.concat(", ");
+			serial = serial.concat("tcp-dst:" + this.tcpDestination);
+		}
+		if(this.udpSource != null){
+			if (serial.length() > 5)
+				serial = serial.concat(", ");
+			serial = serial.concat("udp-src:" + this.udpSource);
+		}
+		if(this.udpDestination != null){
+			if (serial.length() > 5)
+				serial = serial.concat(", ");
+			serial = serial.concat("udp-dst:" + this.udpDestination);
 		}
 		if (this.transportDestination != null) {
-			if(serial.length() > 5)
+			if (serial.length() > 5)
 				serial = serial.concat(", ");
-			serial = serial.concat("dst-port:"
-					+ this.transportDestination);
+			serial = serial.concat("dst-port:" + this.transportDestination);
 		}
 		if (this.transportSource != null) {
-			if(serial.length() > 5)
+			if (serial.length() > 5)
 				serial = serial.concat(", ");
 			serial = serial.concat("src-port:" + this.transportSource);
 		}

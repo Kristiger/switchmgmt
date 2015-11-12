@@ -3,15 +3,11 @@ package view;
 import java.awt.Toolkit;
 import java.io.IOException;
 import java.net.InetAddress;
+import java.net.URL;
+import java.net.URLConnection;
 import java.net.UnknownHostException;
 
-import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Menu;
-import org.eclipse.swt.widgets.MenuItem;
-import org.eclipse.swt.widgets.MessageBox;
-import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swt.widgets.Text;
+import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.TraverseEvent;
@@ -19,8 +15,15 @@ import org.eclipse.swt.events.TraverseListener;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.ImageData;
 import org.eclipse.swt.graphics.Point;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.SWT;
+import org.eclipse.swt.widgets.Menu;
+import org.eclipse.swt.widgets.MenuItem;
+import org.eclipse.swt.widgets.MessageBox;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.Text;
+import org.eclipse.wb.swt.SWTResourceManager;
 
 public class Startup {
 
@@ -29,6 +32,7 @@ public class Startup {
 	protected static Shell shell;
 	protected static Display display;
 	protected static Text txtIp;
+	private static Text txtPort;
 
 	/**
 	 * Create the dialog.
@@ -62,21 +66,29 @@ public class Startup {
 		int timeOut = 5000;
 		try {
 			if (InetAddress.getByName(txtIp.getText()).isReachable(timeOut)) {
-					// Here we dispose this screen and launch the GUI
-					shell.setVisible(false);
-					new Gui(txtIp.getText());
+				// Here we dispose this screen and launch the GUI
+				shell.setVisible(false);
+				new Gui(txtIp.getText());
 			} else {
 				MessageBox mb = new MessageBox(shell, SWT.ICON_ERROR | SWT.OK);
 				mb.setText("Error!");
 				mb.setMessage("Failed to reach the remote IP address. Please make sure you have entered the correct address.");
 				mb.open();
 			}
+		} catch (IllegalArgumentException e) {
+			// TODO: handle exception
+			MessageBox mb = new MessageBox(shell, SWT.ICON_ERROR | SWT.OK);
+			mb.setText("Error!");
+			mb.setMessage("IllegalArgument.");
+			mb.open();
 		} catch (UnknownHostException e1) {
+			// TODO: handle exception
 			MessageBox mb = new MessageBox(shell, SWT.ICON_ERROR | SWT.OK);
 			mb.setText("Error!");
 			mb.setMessage("Unknown host. Please make sure you have entered the correct address.");
 			mb.open();
 		} catch (IOException e1) {
+			// TODO: handle exception
 			MessageBox mb = new MessageBox(shell, SWT.ICON_ERROR | SWT.OK);
 			mb.setText("Error!");
 			mb.setMessage("Failed to reach the remote IP address");
@@ -87,10 +99,11 @@ public class Startup {
 	private void createContents() {
 		shell = new Shell();
 		shell.setSize(winWidth, winHeight);
-        shell.setLocation(new Point(
-        		Toolkit.getDefaultToolkit().getScreenSize().width/2 - winWidth/2, 
-        		Toolkit.getDefaultToolkit().getScreenSize().height/2 - winHeight/2));
-		
+		shell.setLocation(new Point(
+				Toolkit.getDefaultToolkit().getScreenSize().width / 2
+						- winWidth / 2, Toolkit.getDefaultToolkit()
+						.getScreenSize().height / 2 - winHeight / 2));
+
 		shell.setText("Avior Launch");
 		shell.setLayout(null);
 
@@ -145,6 +158,8 @@ public class Startup {
 				.setText("Enter the IP address of the controller to begin");
 
 		txtIp = new Text(shell, SWT.BORDER);
+		txtIp.setFont(SWTResourceManager.getFont("Segoe UI", 10, SWT.NORMAL));
+		txtIp.setToolTipText("HOST IP");
 		txtIp.setBounds(63, 302, 120, 27);
 		txtIp.setText("localhost");
 		// Listener for the text box, if enter is pressed we attempt to
@@ -152,8 +167,9 @@ public class Startup {
 		txtIp.addTraverseListener(new TraverseListener() {
 			@Override
 			public void keyTraversed(TraverseEvent e) {
-				//TODO insert empty warning
-				if (e.detail == SWT.TRAVERSE_RETURN && !txtIp.getText().isEmpty()) {
+				// TODO insert empty warning
+				if (e.detail == SWT.TRAVERSE_RETURN
+						&& !txtIp.getText().isEmpty()) {
 					connect();
 				}
 			}
@@ -164,13 +180,19 @@ public class Startup {
 		lblIp.setText("IP:");
 
 		Button btnLaunch = new Button(shell, SWT.NONE);
-		btnLaunch.setBounds(206, 302, 91, 29);
+		btnLaunch.setBounds(290, 302, 91, 27);
 		btnLaunch.setText("Launch");
+
+		txtPort = new Text(shell, SWT.BORDER);
+		txtPort.setFont(SWTResourceManager.getFont("Segoe UI", 10, SWT.NORMAL));
+		txtPort.setText("8080");
+		txtPort.setToolTipText("PORT");
+		txtPort.setBounds(189, 302, 73, 27);
 		btnLaunch.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				if(!txtIp.getText().isEmpty())
-				connect();
+				if (!txtIp.getText().isEmpty())
+					connect();
 			}
 		});
 

@@ -3,19 +3,19 @@ package model.overview;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Flow {
+public class Flow implements Comparable<Flow> {
 
-	//priority, max is 32767,default is 32767.
+	// priority, max is 32767,default is 32767.
 	String name, priority, cookie, idleTimeOut, hardTimeOut, outPort, sw,
 			durationSeconds, packetCount, byteCount;
 	String table, cookieMask;
-	
+
 	List<Action> actions;
 	Match match;
 
 	public Flow() {
-	    match = new Match();
-	    actions = new ArrayList<Action>();
+		match = new Match();
+		actions = new ArrayList<Action>();
 	}
 
 	public Flow(String selectedSwitch) {
@@ -23,7 +23,7 @@ public class Flow {
 		actions = new ArrayList<Action>();
 		match = new Match();
 	}
-	
+
 	public String getPacketCount() {
 		return packetCount;
 	}
@@ -69,11 +69,11 @@ public class Flow {
 	}
 
 	public void setPriority(String priority) {
-	    /*if(priority.equals("32767"))
-	        this.priority = "";
-	    else   
-	        this.priority = priority;*/
-		//if priority is num and between 1-32767 ?
+		/*
+		 * if(priority.equals("32767")) this.priority = ""; else this.priority =
+		 * priority;
+		 */
+		// if priority is num and between 1-32767 ?
 		this.priority = priority;
 	}
 
@@ -92,7 +92,7 @@ public class Flow {
 	public void setHardTimeOut(String hardTimeOut) {
 		this.hardTimeOut = hardTimeOut;
 	}
-	
+
 	public List<Action> getActions() {
 		return this.actions;
 	}
@@ -137,7 +137,7 @@ public class Flow {
 			serial = serial.concat("\"name\":\"" + name + "\"");
 		}
 		serial = serial.concat(", \"active\":\"true\"");
-		if (priority != null && !priority.equals("")) {			
+		if (priority != null && !priority.equals("")) {
 			if (serial.length() > 15)
 				serial = serial.concat(", ");
 			serial = serial.concat("\"priority\":\"" + priority + "\"");
@@ -165,13 +165,19 @@ public class Flow {
 	public String deleteString() {
 		return "{\"name\":\"" + name + "\"}";
 	}
-	
+
 	public boolean equals(Flow otherFlow) {
-		if(this.match.serialize().equals(otherFlow.match.serialize())
-			&& this.actionsToString().equals(otherFlow.actionsToString())
-			&& this.priority.equals(otherFlow.priority))
+		if (this.match.serialize().equals(otherFlow.match.serialize())
+				&& this.actionsToString().equals(otherFlow.actionsToString())
+				&& this.priority.equals(otherFlow.priority))
 			return true;
-		
+
 		return false;
+	}
+
+	@Override
+	public int compareTo(Flow o) {
+		// TODO Auto-generated method stub
+		return o.byteCount.length() - this.byteCount.length();
 	}
 }

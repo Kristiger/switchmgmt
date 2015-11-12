@@ -38,6 +38,7 @@ import controller.overview.table.DeviceToTable;
 import controller.overview.table.FlowToTable;
 import controller.overview.table.PortToTable;
 import controller.overview.table.SwitchToTable;
+import controller.overview.vms.VMDataGetter;
 import controller.util.JSONException;
 
 public class Gui {
@@ -64,13 +65,38 @@ public class Gui {
 		open();
 	}
 
+	private void getVms() {
+		// TODO Auto-generated method stub
+		Thread thread1 = new Thread(new Runnable() {
+
+			@Override
+			public void run() {
+				// TODO Auto-generated method stub
+				try {
+					while (true) {
+						VMDataGetter.updateVMDatas();
+						System.out.println("vm thread running");
+						Thread.sleep(5000);
+					}
+				} catch (InterruptedException e) {
+					// TODO: handle exception
+					e.printStackTrace();
+				} catch (IllegalArgumentException e) {
+					// TODO: handle exception
+					e.printStackTrace();
+				}
+			}
+		});
+		thread1.start();
+	}
+
 	public void open() {
 		display = Display.getDefault();
-
 		createContents();
 		shell.open();
 		shell.layout();
 		displayControllerInfo();
+		//getVms();
 		while (!shell.isDisposed()) {
 			if (!display.readAndDispatch()) {
 				display.sleep();
@@ -105,7 +131,7 @@ public class Gui {
 								loadSwitchData(sw);
 							}
 						});
-						sleep(1000);
+						sleep(2000);
 					}
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -348,19 +374,7 @@ public class Gui {
 					else if (selection[0].getText().equals("Firewall")) {
 						new Firewall();
 					} else if (selection[0].getText().equals("QoS")) {
-
-						try {
-							AddQos shell1 = new AddQos(display);
-							shell1.open();
-							shell1.layout();
-							while (!shell1.isDisposed()) {
-								if (!display.readAndDispatch()) {
-									display.sleep();
-								}
-							}
-						} catch (Exception e1) {
-							e1.printStackTrace();
-						}
+						new Qos();
 					}
 
 					// Handler for Firewall tree item
@@ -484,7 +498,7 @@ public class Gui {
 		tblclmnIp.setText("MAC");
 
 		TableColumn tblclmnMac = new TableColumn(devices_table, SWT.NONE);
-		tblclmnMac.setWidth(150);
+		tblclmnMac.setWidth(170);
 		tblclmnMac.setText("IP");
 
 		TableColumn tblclmnVlanId = new TableColumn(devices_table, SWT.NONE);

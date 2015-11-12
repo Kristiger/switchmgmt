@@ -16,7 +16,7 @@ public class SSHConnector {
 	private static  Session sess;
 	private static  Connection conn;
 	
-	public static String exec(String command){
+	public static synchronized String exec(String command){
 		
 		StringBuilder sb = new StringBuilder();
 		try{

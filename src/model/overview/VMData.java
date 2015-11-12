@@ -3,11 +3,11 @@ package model.overview;
 public class VMData {
 	private String vmUuid;
 	private String vifUuid;
-	private String vmNameLabel;
-	private String vmOvsPort;
-	private String vmIpAddr;
-	private String vmMacAddr;
-	private String vmSwPort;
+	private String vmNameLabel = "";
+	private String vmOvsPort = "";
+	private String vmIpAddr = "";
+	private String vmMacAddr = "";
+	private String vmSwPort = "";
 	
 	public String getVmUuid() {
 		return vmUuid;

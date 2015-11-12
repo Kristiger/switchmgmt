@@ -60,7 +60,7 @@ public class ActionManagerJSON {
 				jsonobj = json.getJSONObject(i).getJSONObject(flowName)
 						.getJSONObject("actions");
 
-				jsonobj = (JSONObject) jsonobj.get("actions");
+				//jsonobj = (JSONObject) jsonobj.get("actions");
 				if (jsonobj.has("none"))
 					actions.add(new Action("none", jsonobj.getString("none")));
 				if (jsonobj.has("output"))
