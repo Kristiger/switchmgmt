@@ -25,7 +25,7 @@ public class ActionJSON {
 			IOException {
 
 		List<Action> actions = new ArrayList<Action>();
-		
+
 		for (int i = 0; i < json.length(); i++) {
 			obj = json.getJSONObject(i);
 			String objActionType = obj.getString("type");
@@ -104,92 +104,43 @@ public class ActionJSON {
 	public static List<Action> getActions(JSONObject obj) throws JSONException,
 			IOException {
 		List<Action> actions = new ArrayList<Action>();
-		/*
-		 * if(!obj.has("actions")){ return actions; }
-		 */
-		/*
-		 * String act = obj.getString("actions"); String[] list =
-		 * act.split(","); for (String string : list) { String s[] =
-		 * string.split("="); if(s[0].equals("output")) actions.add(new
-		 * Action(s[0], s[1]));
-		 * 
-		 * else if (s[0].equals("strip_vlan")) actions.add(new Action(s[0],
-		 * s[1]));
-		 * 
-		 * else if (s[0].equals("set_vlan_vid")) actions.add(new Action(s[0],
-		 * s[1]));
-		 * 
-		 * else if (s[0].equals("set_vlan_pcp")) actions.add(new Action(s[0],
-		 * s[1]));
-		 * 
-		 * else if (s[0].equals("set_eth_src")) actions.add(new Action(s[0],
-		 * s[1]));
-		 * 
-		 * else if (s[0].equals("set_eth_dst")) actions.add(new Action(s[0],
-		 * s[1]));
-		 * 
-		 * else if (s[0].equals("set_ip_tos")) actions.add(new Action(s[0],
-		 * s[1]));
-		 * 
-		 * else if (s[0].equals("set_ipv4_src")) actions.add(new Action(s[0],
-		 * s[1]));
-		 * 
-		 * else if (s[0].equals("set_ipv4_dst")) actions.add(new Action(s[0],
-		 * s[1]));
-		 * 
-		 * else if (s[0].equals("set_tp_src")) actions.add(new Action(s[0],
-		 * s[1]));
-		 * 
-		 * else if (s[0].equals("set_tp_dst")) actions.add(new Action(s[0],
-		 * s[1]));
-		 * 
-		 * else if(s[0].equals("enqueue")){ //String queue[] = s[1].split("q");
-		 * //String value = queue[0] + ":" + queue[1]; //actions.add(new
-		 * Action(s[0], value)); actions.add(new Action(s[0], s[1])); } else
-		 * System.out.println("unrecognized type"); }
-		 */
 
-		if (obj.has("output")) {
-			actions.add(new Action("output", obj.getString("output")));
-		}
-		if (obj.has("strip_vlan")) {
-			actions.add(new Action("strip_vlan", obj.getString("strip_vlan")));
-		}
-		if (obj.has("set_vlan_vid")) {
-			actions.add(new Action("set_vlan_vid", obj
-					.getString("set_vlan_vid")));
-		}
-		if (obj.has("set_vlan_pcp")) {
-			actions.add(new Action("set_vlan_pcp", obj
-					.getString("set_vlan_pcp")));
-		}
-		if (obj.has("set_eth_src")) {
-			actions.add(new Action("set_eth_src", obj.getString("set_eth_src")));
-		}
-		if (obj.has("set_eth_dst_")) {
-			actions.add(new Action("set_eth_dst", obj.getString("set_eth_dst")));
-		}
-		if (obj.has("set_ip_tos")) {
-			actions.add(new Action("set_ip_tos", obj.getString("set_ip_tos")));
-		}
-		if (obj.has("set_ipv4_src")) {
-			actions.add(new Action("set_ipv4_src", obj
-					.getString("set_ipv4_src")));
-		}
-		if (obj.has("set_ipv4_dst")) {
-			actions.add(new Action("set_ipv4_dst", obj
-					.getString("set_ipv4_dst")));
-		}
-		if (obj.has("set_tp_src")) {
-			actions.add(new Action("set_tp_src", obj.getString("set_tp_src")));
-		}
-		if (obj.has("set_tp_dst")) {
-			actions.add(new Action("set_tp_dst", obj.getString("set_tp_dst")));
-		}
-		if (obj.has("enqueue")) {
-			actions.add(new Action("enqueue", obj.getString("enqueue")));
+		if (!obj.has("actions")) {
+			return actions;
 		}
 
+		String act = obj.getString("actions");
+		String[] list = act.split(",");
+		for (String string : list) {
+			String s[] = string.split("=");
+			if (s[0].equals("output"))
+				actions.add(new Action(s[0], s[1]));
+			else if (s[0].equals("strip_vlan"))
+				actions.add(new Action(s[0], ""));
+			else if (s[0].equals("set_vlan_vid"))
+				actions.add(new Action(s[0], s[1]));
+			else if (s[0].equals("set_vlan_pcp"))
+				actions.add(new Action(s[0], s[1]));
+			else if (s[0].equals("set_eth_src"))
+				actions.add(new Action(s[0], s[1]));
+			else if (s[0].equals("set_eth_dst"))
+				actions.add(new Action(s[0], s[1]));
+			else if (s[0].equals("set_ip_tos"))
+				actions.add(new Action(s[0], s[1]));
+			else if (s[0].equals("set_ipv4_src"))
+				actions.add(new Action(s[0], s[1]));
+			else if (s[0].equals("set_ipv4_dst"))
+				actions.add(new Action(s[0], s[1]));
+			else if (s[0].equals("set_tp_src"))
+				actions.add(new Action(s[0], s[1]));
+			else if (s[0].equals("set_tp_dst"))
+				actions.add(new Action(s[0], s[1]));
+			else if (s[0].equals("enqueue")) {
+				actions.add(new Action(s[0], s[1]));
+			} else {
+				System.out.println("unrecognized type");
+			}
+		}
 		return actions;
 	}
 

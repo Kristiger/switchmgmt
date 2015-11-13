@@ -59,21 +59,14 @@ public class FlowJSON {
 				if (obj.has("actions"))
 					flow.setActions(ActionJSON.getActions(obj.getJSONObject("actions")));
 
-				//OF13 like this
-				if (obj.has("instructions"))
-					flow.setActions(ActionJSON.getOF13Actions(obj
-							.getJSONObject("instructions")));
-
 				//OF13 has 256 tables and, through this can exclude those has no flows.
 				if (obj.has("match") && obj.getJSONObject("match").length() != 0)
 					flow.setMatch(MatchJSON.getMatch(obj.getJSONObject("match")));
 				
 				if (obj.has("priority"))
 					flow.setPriority(String.valueOf(obj.getInt("priority")));
-				
 				if (obj.has("idleTimeoutSec") && obj.getInt("idleTimeoutSec") != 0)
 					flow.setIdleTimeOut(String.valueOf(obj.getInt("idleTimeoutSec")));
-				
 				if (obj.has("hardTimeoutSec") && obj.getInt("hardTimeoutSec") != 0)
 					flow.setHardTimeOut(String.valueOf(obj.getInt("hardTimeoutSec")));
 				if (obj.has("durationSeconds"))
@@ -81,10 +74,14 @@ public class FlowJSON {
 				
 				if (obj.has("packetCount"))
 					flow.setPacketCount(String.valueOf(obj.getInt("packetCount")));
-				
 				if(obj.has("byteCount"))
-					flow.setByteCount(FormatLong.formatBytes(obj.getLong("byteCount"), false, false));
+					flow.setByteCount(String.valueOf(obj.getLong("byteCount")));
 				
+				if(obj.has("tableId"))
+					flow.setTable(obj.getString("tableId"));
+				if(obj.has("cookie"))
+					flow.setCookie(obj.getString("cookie"));
+
 				flows.add(flow);
 			}
 		}

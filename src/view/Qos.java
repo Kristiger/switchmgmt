@@ -9,7 +9,7 @@ import model.overview.Port;
 import model.overview.QosPolicy;
 import model.overview.QosQueue;
 import model.overview.Switch;
-import model.overview.VMData;
+import model.overview.VmData;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -55,7 +55,7 @@ public class Qos {
 	private Tree treeSwitches;
 	private Tree treePort;
 
-	private List<VMData> vms;
+	private List<VmData> vms;
 	private List<QosPolicy> qospolicies;
 	private QosPolicy qospolicy = null;
 	private static Port currPort = null;
@@ -193,13 +193,13 @@ public class Qos {
 		}
 
 		Iterator<QosPolicy> it = qospolicies.iterator();
-		VMData vm = null;
+		VmData vm = null;
 		while (it.hasNext()) {
 			qospolicy = it.next();
 			if (qospolicy.getSwitchdpid().equals(currSwitch.getDpid())) {
 				vm = FloodlightProvider.getVM(currPort.getPortNumber());
 				if (vm != null
-						&& vm.getVmOvsPort().equals(qospolicy.getQueuePort()))
+						&& vm.getVmVifNumber().equals(qospolicy.getQueuePort()))
 					return true;
 			}
 		}
@@ -274,13 +274,13 @@ public class Qos {
 			qospolicy.setSwitchdpid(currSwitch.getDpid());
 
 			// set qospolicy ovs port
-			Iterator<VMData> it = vms.iterator();
-			VMData vm = null;
+			Iterator<VmData> it = vms.iterator();
+			VmData vm = null;
 			while (it.hasNext()) {
 				vm = it.next();
-				if (vm.getVmSwPort().equals(currPort.getPortNumber())) {
-					if (!vm.getVmOvsPort().equals("none"))
-						qospolicy.setQueuePort(vm.getVmOvsPort());
+				if (vm.getVmSwitchPort().equals(currPort.getPortNumber())) {
+					if (!vm.getVmVifNumber().equals("none"))
+						qospolicy.setQueuePort(vm.getVmVifNumber());
 					else {
 						DisplayMessage
 								.displayError(shell,
@@ -355,10 +355,10 @@ public class Qos {
 	private boolean fullfillQospolicy() {
 		// TODO Auto-generated method stub
 		List<QosQueue> queues = new ArrayList<QosQueue>();
-		VMData vm = null;
+		VmData vm = null;
 		qospolicy.setSwitchdpid(currSwitch.getDpid());
 		if ((vm = FloodlightProvider.getVM(currPort.getPortNumber())) != null)
-			qospolicy.setQueuePort(vm.getVmOvsPort());
+			qospolicy.setQueuePort(vm.getVmVifNumber());
 		else {
 			DisplayMessage.displayError(shell, "Can't get ovs port");
 			return false;

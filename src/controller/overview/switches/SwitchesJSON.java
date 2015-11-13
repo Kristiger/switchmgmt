@@ -105,21 +105,25 @@ public class SwitchesJSON {
 			// Aggregate stats, ignore
 			if (aggregateObj != null) {
 				aggregateObj = aggregateObj.getJSONObject("aggregate");
-				sw.setPacketCount(String.valueOf(aggregateObj
-						.getInt("packetCount")));
-				sw.setByteCount(String.valueOf(aggregateObj.getInt("byteCount")));
-				sw.setFlowCount(String.valueOf(aggregateObj.getInt("flowCount")));
+				sw.setPacketCount(aggregateObj.getString("packetCount"));
+				sw.setByteCount(aggregateObj.getString("byteCount"));
+				sw.setFlowCount(aggregateObj.getString("flowCount"));
 			}
 
 			// Flow Stats
 			sw.setFlows(FlowJSON.getFlows(dpid));
 
 			// Port and Features stats
-			if (portObj == null || !portObj.has("port")) {
-				return switches;
-			}			
-			JSONArray json = portObj.getJSONArray("port");
-			
+			if (portObj == null
+					|| !portObj.has("port_reply")
+					|| !portObj.getJSONArray("port_reply").getJSONObject(0)
+							.has("port")) {
+				switches.add(sw);
+				continue;
+			}
+			JSONArray json = portObj.getJSONArray("port_reply")
+					.getJSONObject(0).getJSONArray("port");
+
 			JSONArray jsontwo = new JSONArray();
 			if (featuresObj.has("portDesc")) {
 				jsontwo = featuresObj.getJSONArray("portDesc");
@@ -127,17 +131,18 @@ public class SwitchesJSON {
 
 			for (int i = 0; i < json.length(); i++) {
 				obj = (JSONObject) json.get(i);
-				if (!obj.has("portNumber"))
-					return switches;
-				Port port = new Port(obj.getString("portNumber"));
-				port.setReceivePackets(FormatLong.formatPackets(
-						obj.getLong("receivePackets"), false, false));
-				port.setTransmitPackets(FormatLong.formatPackets(
-						obj.getLong("transmitPackets"), false, false));
-				port.setReceiveBytes(FormatLong.formatBytes(
-						obj.getLong("receiveBytes"), true, false));
-				port.setTransmitBytes(FormatLong.formatBytes(
-						obj.getLong("transmitBytes"), true, false));
+				if (!obj.has("portNumber")) {
+					continue;
+				}
+				Port port = new Port(String.valueOf(obj.getString("portNumber")));
+
+				port.setReceivePackets(String.valueOf(obj
+						.getLong("receivePackets")));
+				port.setTransmitPackets(String.valueOf(obj
+						.getLong("transmitPackets")));
+				port.setReceiveBytes(String.valueOf(obj.getLong("receiveBytes")));
+				port.setTransmitBytes(String.valueOf(obj
+						.getLong("transmitBytes")));
 				port.setReceiveDropped(String.valueOf(obj
 						.getLong("receiveDropped")));
 				port.setTransmitDropped(String.valueOf(obj
@@ -153,20 +158,24 @@ public class SwitchesJSON {
 				port.setReceiveCRCErrors(String.valueOf(obj
 						.getInt("receiveCRCErrors")));
 				port.setCollisions(String.valueOf(obj.getInt("collisions")));
+
 				if (!jsontwo.isNull(i)) {
 					obj = (JSONObject) jsontwo.get(i);
-					port.setAdvertisedFeatures(String.valueOf(obj
-							.getInt("advertisedFeatures")));
-					port.setConfig(String.valueOf(obj.getInt("config")));
-					port.setCurrentFeatures(String.valueOf(obj
-							.getInt("currentFeatures")));
-					port.setHardwareAddress(obj.getString("hardwareAddress"));
-					port.setName(obj.getString("name"));
-					port.setPeerFeatures(String.valueOf(obj
-							.getInt("peerFeatures")));
-					port.setState(String.valueOf(obj.getInt("state")));
-					port.setSupportedFeatures(String.valueOf(obj
-							.getInt("supportedFeatures")));
+					if (port.getPortNumber().equals(obj.get("portNumber"))) {
+						port.setName(obj.getString("name"));
+						port.setState(String.valueOf(obj.getInt("state")));
+						port.setConfig(String.valueOf(obj.getInt("config")));
+						port.setHardwareAddress(obj
+								.getString("hardwareAddress"));
+						port.setAdvertisedFeatures(String.valueOf(obj
+								.getInt("advertisedFeatures")));
+						port.setCurrentFeatures(String.valueOf(obj
+								.getInt("currentFeatures")));
+						port.setPeerFeatures(String.valueOf(obj
+								.getInt("peerFeatures")));
+						port.setSupportedFeatures(String.valueOf(obj
+								.getInt("supportedFeatures")));
+					}
 				}
 				ports.add(port);
 			}
@@ -189,9 +198,11 @@ public class SwitchesJSON {
 		Future<Object> futureStat = SwitchJSON.startSwitchRestCalls(dpid, true);
 
 		try {
-			stats = (Map<String, Future<Object>>) futureStat.get(5L, TimeUnit.SECONDS);
+			stats = (Map<String, Future<Object>>) futureStat.get(5L,
+					TimeUnit.SECONDS);
 			portObj = (JSONObject) stats.get("port").get(5L, TimeUnit.SECONDS);
-			featuresObj = (JSONObject) stats.get("features").get(5L, TimeUnit.SECONDS);
+			featuresObj = (JSONObject) stats.get("features").get(5L,
+					TimeUnit.SECONDS);
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -212,10 +223,15 @@ public class SwitchesJSON {
 		}
 
 		// Port and Features stats
-		JSONArray json = new JSONArray();
-		if (portObj.has("port")) {
-			json = portObj.getJSONArray("port");
+		if (portObj == null
+				|| !portObj.has("port_reply")
+				|| !portObj.getJSONArray("port_reply").getJSONObject(0)
+						.has("port")) {
+			switches.add(sw);
+			return;
 		}
+		JSONArray json = portObj.getJSONArray("port_reply")
+				.getJSONObject(0).getJSONArray("port");
 
 		JSONArray jsontwo = new JSONArray();
 		if (featuresObj.has("portDesc")) {
@@ -225,23 +241,25 @@ public class SwitchesJSON {
 		for (int i = 0; i < json.length(); i++) {
 			obj = (JSONObject) json.get(i);
 			if (!obj.has("portNumber")) {
-				return;
+				continue;
 			}
-			Port port = new Port(obj.getString("portNumber"));
-			
-			port.setReceivePackets(FormatLong.formatPackets(
-					obj.getLong("receivePackets"), false, false));
-			port.setTransmitPackets(FormatLong.formatPackets(
-					obj.getLong("transmitPackets"), false, false));
-			port.setReceiveBytes(FormatLong.formatBytes(
-					obj.getLong("receiveBytes"), true, false));
-			port.setTransmitBytes(FormatLong.formatBytes(
-					obj.getLong("transmitBytes"), true, false));
-			port.setReceiveDropped(String.valueOf(obj.getLong("receiveDropped")));
+			Port port = new Port(String.valueOf(obj.getString("portNumber")));
+
+			port.setReceivePackets(String.valueOf(obj
+					.getLong("receivePackets")));
+			port.setTransmitPackets(String.valueOf(obj
+					.getLong("transmitPackets")));
+			port.setReceiveBytes(String.valueOf(obj.getLong("receiveBytes")));
+			port.setTransmitBytes(String.valueOf(obj
+					.getLong("transmitBytes")));
+			port.setReceiveDropped(String.valueOf(obj
+					.getLong("receiveDropped")));
 			port.setTransmitDropped(String.valueOf(obj
 					.getLong("transmitDropped")));
-			port.setReceiveErrors(String.valueOf(obj.getLong("receiveErrors")));
-			port.setTransmitErrors(String.valueOf(obj.getLong("transmitErrors")));
+			port.setReceiveErrors(String.valueOf(obj
+					.getLong("receiveErrors")));
+			port.setTransmitErrors(String.valueOf(obj
+					.getLong("transmitErrors")));
 			port.setReceieveFrameErrors(String.valueOf(obj
 					.getInt("receiveFrameErrors")));
 			port.setReceieveOverrunErrors(String.valueOf(obj
@@ -249,19 +267,24 @@ public class SwitchesJSON {
 			port.setReceiveCRCErrors(String.valueOf(obj
 					.getInt("receiveCRCErrors")));
 			port.setCollisions(String.valueOf(obj.getInt("collisions")));
+
 			if (!jsontwo.isNull(i)) {
 				obj = (JSONObject) jsontwo.get(i);
-				port.setAdvertisedFeatures(String.valueOf(obj
-						.getInt("advertisedFeatures")));
-				port.setConfig(String.valueOf(obj.getInt("config")));
-				port.setCurrentFeatures(String.valueOf(obj
-						.getInt("currentFeatures")));
-				port.setHardwareAddress(obj.getString("hardwareAddress"));
-				port.setName(obj.getString("name"));
-				port.setPeerFeatures(String.valueOf(obj.getInt("peerFeatures")));
-				port.setState(String.valueOf(obj.getInt("state")));
-				port.setSupportedFeatures(String.valueOf(obj
-						.getInt("supportedFeatures")));
+				if (port.getPortNumber().equals(obj.get("portNumber"))) {
+					port.setName(obj.getString("name"));
+					port.setState(String.valueOf(obj.getInt("state")));
+					port.setConfig(String.valueOf(obj.getInt("config")));
+					port.setHardwareAddress(obj
+							.getString("hardwareAddress"));
+					port.setAdvertisedFeatures(String.valueOf(obj
+							.getInt("advertisedFeatures")));
+					port.setCurrentFeatures(String.valueOf(obj
+							.getInt("currentFeatures")));
+					port.setPeerFeatures(String.valueOf(obj
+							.getInt("peerFeatures")));
+					port.setSupportedFeatures(String.valueOf(obj
+							.getInt("supportedFeatures")));
+				}
 			}
 			ports.add(port);
 		}
@@ -274,7 +297,6 @@ public class SwitchesJSON {
 		Future<Object> futureSwDpids = Deserializer
 				.readJsonArrayFromURL("http://" + IP
 						+ ":8080/wm/core/controller/switches/json");
-
 		try {
 			json = (JSONArray) futureSwDpids.get(5, TimeUnit.SECONDS);
 		} catch (InterruptedException e2) {

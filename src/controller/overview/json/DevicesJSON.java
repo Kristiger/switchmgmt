@@ -50,17 +50,19 @@ public class DevicesJSON {
 					for (int j = 1; j < jsonip.length(); j++) {
 						ip = ip + "," + jsonip.getString(j);
 					}
-					// temp.setIpv4(obj.getJSONArray("ipv4").getString(0));
 					temp.setIpv4(ip);
 				}
+
 				if (!obj.getJSONArray("attachmentPoint").isNull(0)) {
 					temp.setAttachedSwitch(obj.getJSONArray("attachmentPoint")
 							.getJSONObject(0).getString("switchDPID"));
 					temp.setSwitchPort(obj.getJSONArray("attachmentPoint")
 							.getJSONObject(0).getInt("port"));
 				}
-				Date d = new Date(obj.getLong("lastSeen"));
-				temp.setLastSeen(d);
+				if (obj.has("lastSeen")) {
+					Date d = new Date(obj.getLong("lastSeen"));
+					temp.setLastSeen(d);
+				}
 				devicees.add(temp);
 			}
 		} catch (InterruptedException e) {

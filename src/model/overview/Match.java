@@ -16,7 +16,7 @@ public class Match {
 			networkSourceMaskLength, networkTypeOfService,
 			transportDestination, transportSource, wildcards;
 
-	String ipProto, tcpSource, tcpDestination, udpSource, udpDestination,
+	String tcpSource, tcpDestination, udpSource, udpDestination,
 			stcpSource, stcpDestination, icmpv4Type, icmpv4Code, mplsLable,
 			mplsTc, mplsBos, tunnelId, metadata;
 
@@ -119,6 +119,38 @@ public class Match {
 
 	public void setNetworkTypeOfService(String networkTypeOfService) {
 		this.networkTypeOfService = networkTypeOfService;
+	}
+
+	public String getTcpSource() {
+		return tcpSource;
+	}
+
+	public void setTcpSource(String tcpSource) {
+		this.tcpSource = tcpSource;
+	}
+
+	public String getTcpDestination() {
+		return tcpDestination;
+	}
+
+	public void setTcpDestination(String tcpDestination) {
+		this.tcpDestination = tcpDestination;
+	}
+
+	public String getUdpSource() {
+		return udpSource;
+	}
+
+	public void setUdpSource(String udpSource) {
+		this.udpSource = udpSource;
+	}
+
+	public String getUdpDestination() {
+		return udpDestination;
+	}
+
+	public void setUdpDestination(String udpDestination) {
+		this.udpDestination = udpDestination;
 	}
 
 	public String getTransportDestination() {

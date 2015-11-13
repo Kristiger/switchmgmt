@@ -2,10 +2,15 @@ package view;
 
 import java.awt.Toolkit;
 import java.io.IOException;
+import java.text.DateFormat;
+import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.logging.Logger;
 
 import model.overview.Switch;
+import model.overview.VmData;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StackLayout;
@@ -20,7 +25,9 @@ import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.MessageBox;
@@ -38,7 +45,8 @@ import controller.overview.table.DeviceToTable;
 import controller.overview.table.FlowToTable;
 import controller.overview.table.PortToTable;
 import controller.overview.table.SwitchToTable;
-import controller.overview.vms.VMDataGetter;
+import controller.overview.table.VmsToTable;
+import controller.overview.vms.VmDataGetter;
 import controller.util.JSONException;
 
 public class Gui {
@@ -48,7 +56,7 @@ public class Gui {
 	private Shell shell;
 	private Table devices_table, table_ports, table_flows;
 	private Table switches_table;
-	private Composite controllerOverview, detailed_switch;
+	private Composite controllerOverview, detailed_switch, composite_3;
 	private Label lblInsertHostname, lblInsertHealthy, lblInsertJvmMemory,
 			lblInsertModules, lblSn, lblHardware, lblSoftware, lblManufacturer;
 	private TreeItem trtmSwitches, trtmDevices;
@@ -56,6 +64,9 @@ public class Gui {
 	private static boolean switchesLoaded;
 	private Display display;
 	private static List<String> controllerInfo = new ArrayList<String>();
+
+	private Logger log = Logger.getGlobal();
+	private Table table_mgmt;
 
 	/**
 	 * Launch the application.
@@ -74,7 +85,7 @@ public class Gui {
 				// TODO Auto-generated method stub
 				try {
 					while (true) {
-						VMDataGetter.updateVMDatas();
+						VmDataGetter.updateVMDatas();
 						System.out.println("vm thread running");
 						Thread.sleep(5000);
 					}
@@ -96,7 +107,7 @@ public class Gui {
 		shell.open();
 		shell.layout();
 		displayControllerInfo();
-		//getVms();
+		// getVms();
 		while (!shell.isDisposed()) {
 			if (!display.readAndDispatch()) {
 				display.sleep();
@@ -139,6 +150,22 @@ public class Gui {
 			}
 		};
 		thread.start();
+
+		Thread thread2 = new Thread(new Runnable() {
+
+			@Override
+			public void run() {
+				// TODO Auto-generated method stub
+				try {
+					populateManagementData();
+					Thread.sleep(5000);
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+		});
+		thread2.start();
 	}
 
 	/**
@@ -207,6 +234,19 @@ public class Gui {
 	}
 
 	/**
+	 * Populate the table Management
+	 */
+	private void populateManagementData() {
+		table_mgmt.removeAll();
+
+		for (String[] data : VmsToTable.vmdatasToTable(VmDataGetter
+				.getVmDatas())) {
+			TableItem item = new TableItem(table_mgmt, SWT.NONE);
+			item.setText(data);
+		}
+	}
+
+	/**
 	 * This loads and displays information about all the switches
 	 */
 	private void displaySwitchesData() {
@@ -237,6 +277,9 @@ public class Gui {
 
 		sw = FloodlightProvider.getSwitch(sw.getDpid(), true);
 
+		if (sw.getFlows().size() == 0) {
+			log.info("no flows get");
+		}
 		for (String[] data : FlowToTable.getFlowTableFormat(sw.getFlows())) {
 			new TableItem(table_flows, SWT.NONE).setText(data);
 		}
@@ -254,6 +297,36 @@ public class Gui {
 		lblSn.setText("Serial Number : " + sw.getSerialNumber());
 	}
 
+	protected void handleVmDoubleClick(TableItem tableItem) {
+		// TODO Auto-generated method stub
+		VmData vm = new VmData();
+
+		if (!tableItem.getText(1).equals("None")) {
+			vm.setVmIpAddr(tableItem.getText(1));
+		}
+		if (!tableItem.getText(1).equals("None")) {
+			vm.setVmMacAddr(tableItem.getText(2));
+		}
+		if (!tableItem.getText(1).equals("None")) {
+			vm.setVmSwitch(tableItem.getText(3));
+		}
+		if (!tableItem.getText(1).equals("None")) {
+			vm.setVmSwitchPort(tableItem.getText(4));
+		}
+		if (!tableItem.getText(1).equals("None")) {
+			DateFormat df = DateFormat.getInstance();
+			try {
+				vm.setLastSeen(df.parse(tableItem.getText(5)));
+			} catch (ParseException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		if (!tableItem.getText(1).equals("None")) {
+			vm.setVmVifNumber(tableItem.getText(6));
+		}
+	}
+
 	/**
 	 * Create contents of the window.
 	 */
@@ -266,39 +339,6 @@ public class Gui {
 						- winWidth / 2, Toolkit.getDefaultToolkit()
 						.getScreenSize().height / 2 - winHeight / 2));
 		shell.setText("Avior");
-
-		Menu menu = new Menu(shell, SWT.BAR);
-		shell.setMenuBar(menu);
-
-		MenuItem mntmNewSubmenu = new MenuItem(menu, SWT.CASCADE);
-		mntmNewSubmenu.setText("File");
-
-		Menu menu_1 = new Menu(mntmNewSubmenu);
-		mntmNewSubmenu.setMenu(menu_1);
-
-		MenuItem mntmClose = new MenuItem(menu_1, SWT.NONE);
-		mntmClose.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				shell.dispose();
-			}
-		});
-		mntmClose.setText("Close");
-
-		MenuItem mntmAbout = new MenuItem(menu, SWT.CASCADE);
-		mntmAbout.setText("Help");
-
-		Menu menu_2 = new Menu(mntmAbout);
-		mntmAbout.setMenu(menu_2);
-
-		MenuItem mntmInfo = new MenuItem(menu_2, SWT.NONE);
-		mntmInfo.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				new About();
-			}
-		});
-		mntmInfo.setText("About");
 
 		Composite composite = new Composite(shell, SWT.NONE);
 		GroupLayout gl_shell = new GroupLayout(shell);
@@ -364,6 +404,13 @@ public class Gui {
 						displayDevicesData();
 					}
 
+					// Handler for Management tree item
+					else if (selection[0].getText().equals("Management")) {
+						stackLayout.topControl = composite_3;
+						composite_1.layout();
+						populateManagementData();
+					}
+
 					// Handler for Static Flow Manager tree item
 					else if (selection[0].getText().equals(
 							"Static Flow Manager")) {
@@ -373,16 +420,12 @@ public class Gui {
 					// Handler for Flow Manager tree item
 					else if (selection[0].getText().equals("Firewall")) {
 						new Firewall();
-					} else if (selection[0].getText().equals("QoS")) {
+					} 
+					
+					else if (selection[0].getText().equals("QoS")) {
 						new Qos();
 					}
-
-					// Handler for Firewall tree item
-					/*
-					 * else if (selection[0].getText().equals("Firewall")) {
-					 * System.out.println("Feature not available yet!"); // new
-					 * FirewallManager(); }
-					 */
+					
 					else if (selection[0].getText().length() == 23) {
 						for (Switch sw : FloodlightProvider.getSwitches(false)) {
 							if (sw.getDpid().equals(selection[0].getText())) {
@@ -412,6 +455,9 @@ public class Gui {
 
 		trtmDevices = new TreeItem(trtmTest, SWT.NONE);
 		trtmDevices.setText("Devices");
+
+		TreeItem trtmManagement = new TreeItem(trtmTest, SWT.NONE);
+		trtmManagement.setText("Management");
 		trtmTest.setExpanded(true);
 
 		TreeItem trtmTools = new TreeItem(tree, SWT.NONE);
@@ -429,14 +475,15 @@ public class Gui {
 		TreeItem trtmVirtualnetworkfilter = new TreeItem(trtmTools, SWT.NONE);
 		trtmVirtualnetworkfilter.setText("VirtualNetworkFilter");
 
-		TreeItem trtmLoadbalancer = new TreeItem(trtmTools, SWT.NONE);
+		/*TreeItem trtmLoadbalancer = new TreeItem(trtmTools, SWT.NONE);
 		trtmLoadbalancer.setText("LoadBalancer");
-		trtmTools.setExpanded(true);
+		trtmTools.setExpanded(true);*/
 
 		switches_table = new Table(composite_1, SWT.BORDER | SWT.FULL_SELECTION);
 		switches_table.setHeaderVisible(true);
 		switches_table.setLinesVisible(true);
-		final Menu switchMenu = new Menu(switches_table);
+		
+		/*final Menu switchMenu = new Menu(switches_table);
 		switches_table.setMenu(switchMenu);
 		switchMenu.addMenuListener(new MenuAdapter() {
 			public void menuShown(MenuEvent e) {
@@ -455,7 +502,7 @@ public class Gui {
 					}
 				});
 			}
-		});
+		});*/
 
 		TableColumn tableColumn_1 = new TableColumn(switches_table, SWT.NONE);
 		tableColumn_1.setWidth(50);
@@ -560,11 +607,6 @@ public class Gui {
 		tblclmnnum.setWidth(50);
 		tblclmnnum.setText("Port");
 
-		/*
-		 * TableColumn tblclmnname = new TableColumn(table_ports, SWT.NONE);
-		 * tblclmnname.setWidth(200); tblclmnname.setText("Link Status");
-		 */
-
 		TableColumn tblclmnlink = new TableColumn(table_ports, SWT.NONE);
 		tblclmnlink.setWidth(100);
 		tblclmnlink.setText("TX Bytes");
@@ -588,6 +630,10 @@ public class Gui {
 		TableColumn tblclmnerrors = new TableColumn(table_ports, SWT.NONE);
 		tblclmnerrors.setWidth(100);
 		tblclmnerrors.setText("Errors");
+
+		TableColumn tblclmnName = new TableColumn(table_ports, SWT.NONE);
+		tblclmnName.setWidth(100);
+		tblclmnName.setText("Name");
 
 		table_flows = new Table(detailed_switch, SWT.BORDER
 				| SWT.FULL_SELECTION);
@@ -670,9 +716,57 @@ public class Gui {
 
 		switchesLoaded = false;
 		stackLayout.topControl = controllerOverview;
+
+		composite_3 = new Composite(composite_1, SWT.NONE);
+
+		table_mgmt = new Table(composite_3, SWT.BORDER | SWT.FULL_SELECTION);
+		table_mgmt.addListener(SWT.MouseDoubleClick, new Listener() {
+
+			@Override
+			public void handleEvent(Event arg0) {
+				// TODO Auto-generated method stub
+				TableItem[] items = table_mgmt.getItems();
+				int index = table_mgmt.getSelectionIndex();
+				handleVmDoubleClick(items[index]);
+			}
+		});
+		table_mgmt.setBounds(0, 0, 958, 700);
+		table_mgmt.setHeaderVisible(true);
+		table_mgmt.setLinesVisible(true);
+
+		TableColumn tblclmnVmName = new TableColumn(table_mgmt, SWT.NONE);
+		tblclmnVmName.setWidth(150);
+		tblclmnVmName.setText("VM Name");
+
+		TableColumn tblclmnIp_1 = new TableColumn(table_mgmt, SWT.NONE);
+		tblclmnIp_1.setWidth(130);
+		tblclmnIp_1.setText("IP");
+
+		TableColumn tblclmnMac_1 = new TableColumn(table_mgmt, SWT.NONE);
+		tblclmnMac_1.setWidth(150);
+		tblclmnMac_1.setText("MAC");
+
+		TableColumn tblclmnSwitch = new TableColumn(table_mgmt, SWT.NONE);
+		tblclmnSwitch.setWidth(150);
+		tblclmnSwitch.setText("SWITCH");
+
+		TableColumn tblclmnPort = new TableColumn(table_mgmt, SWT.NONE);
+		tblclmnPort.setWidth(60);
+		tblclmnPort.setText("PORT");
+
+		TableColumn tblclmnLastseen = new TableColumn(table_mgmt, SWT.NONE);
+		tblclmnLastseen.setWidth(100);
+		tblclmnLastseen.setText("LASTSEEN");
+
+		TableColumn tblclmnVif = new TableColumn(table_mgmt, SWT.NONE);
+		tblclmnVif.setWidth(60);
+		tblclmnVif.setText("VIF");
+
+		TableColumn tblclmnUuid = new TableColumn(table_mgmt, SWT.NONE);
+		tblclmnUuid.setWidth(100);
+		tblclmnUuid.setText("UUID");
 		composite_1.layout(true);
 
 		shell.setLayout(gl_shell);
-
 	}
 }

@@ -24,6 +24,30 @@ public class Flow implements Comparable<Flow> {
 		match = new Match();
 	}
 
+	public String getCookie() {
+		return cookie;
+	}
+
+	public void setCookie(String cookie) {
+		this.cookie = cookie;
+	}
+
+	public String getSw() {
+		return sw;
+	}
+
+	public void setSw(String sw) {
+		this.sw = sw;
+	}
+
+	public String getTable() {
+		return table;
+	}
+
+	public void setTable(String table) {
+		this.table = table;
+	}
+
 	public String getPacketCount() {
 		return packetCount;
 	}

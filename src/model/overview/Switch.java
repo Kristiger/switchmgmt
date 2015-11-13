@@ -91,6 +91,7 @@ public class Switch {
 	}
 
 	public List<Port> getPorts() {
+		Collections.sort(ports);
 		return ports;
 	}
 
@@ -99,7 +100,7 @@ public class Switch {
 	}
 
 	public List<Flow> getFlows(){
-		Collections.sort(flows);
+		//Collections.sort(flows);
 		return flows;
 	}
 

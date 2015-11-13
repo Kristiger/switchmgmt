@@ -5,128 +5,91 @@ import java.util.Iterator;
 import java.util.List;
 
 import model.overview.Device;
-import model.overview.VMData;
+import model.overview.Port;
+import model.overview.Switch;
+import model.overview.VmData;
+import controller.floodlightprovider.FloodlightProvider;
 import controller.overview.json.DevicesJSON;
 import controller.util.JSONException;
-import controller.util.SSHConnector;
 
-public class VMDataGetter {
-	private static List<VMData> vms = new ArrayList<VMData>();
-	private static List<Device> devices;
-	private static VMData vm = null;
-	private static Device device = null;
+public class VmDataGetter {
+	private static List<VmData> vms = new ArrayList<VmData>();
 
-	public static List<VMData> getVmDatas() {
+	public static List<VmData> getVmDatas() {
+		updateVMDatas();
 		return vms;
 	}
 
-	public static VMData getVmData(String sw, String port) {
+	public static void updateVMDatas() {
+		getDataFromController();
+		getDataFromXenServer();
+	}
+
+	public static VmData getVmData(String sw, String port) {
 		// the switch must be xenserver switch
-		Iterator<VMData> it = vms.iterator();
+		Iterator<VmData> it = vms.iterator();
+		VmData vm = null;
 		while (it.hasNext()) {
 			vm = it.next();
-			if (vm.getVmSwPort().equals(port)) {
+			if (vm.getVmSwitch().equals(sw)
+					&& vm.getVmSwitchPort().equals(port))
 				return vm;
-			}
 		}
 		return null;
 	}
 
-	public static void updateVMDatas() {
-		vms = new ArrayList<VMData>();
-		getVMUuids();
-		getVMDetails();
-		getVmSwPort();
-		addPortOne();
-	}
-	
-	private static void addPortOne(){
-		vm = new VMData();
-		vm.setVifUuid("1");
-		vm.setVifUuid("1");
-		vm.setVmMacAddr("");
-		vm.setVmOvsPort("eth0");
-		vm.setVmSwPort("1");
-		vm.setVmIpAddr("");
-		vms.add(vm);
-	}
-
-	private static void getVMUuids() {
-
-		String command = "xe vif-list | grep uuid";
-		String lines[] = SSHConnector.exec(command).split("\n");
-		String vifuuid, vmuuid;
-
-		for (int i = 0; i < lines.length; i += 3) {
-			VMData vm = new VMData();
-			vifuuid = lines[i].substring(lines[i].indexOf(":") + 2);
-			vmuuid = lines[i + 1].substring(lines[i + 1].indexOf(":") + 2);
-			vm.setVifUuid(vifuuid);
-			vm.setVmUuid(vmuuid);
-			vms.add(vm);
-		}
-	}
-
-	private static void getVMDetails() {
-		String command, vifuuid, vmuuid;
-		String[] lines;
-		Iterator<VMData> it = vms.iterator();
-		String MAC, port, ip;
-		while (it.hasNext()) {
-			vm = it.next();
-
-			// get MAC address
-			vifuuid = vm.getVifUuid();
-			command = "xe vif-param-list uuid=" + vifuuid + " | grep MAC";
-			lines = SSHConnector.exec(command).split("\n");
-			if(!lines[0].contains("MAC"))
-				continue;
-			MAC = lines[0].substring(lines[0].indexOf(":") + 2);
-			vm.setVmMacAddr(MAC);
-
-			// get IPv4 and vif port
-			vmuuid = vm.getVmUuid();
-			command = "xe vm-param-list uuid=" + vmuuid
-					+ " | grep -E \'dom-id|network\'";
-			lines = SSHConnector.exec(command).split("\n");
-			if (lines.length < 2)
-				continue;
-			
-			port = lines[0].substring(lines[0].indexOf(":") + 2);
-			ip = lines[1].substring(lines[1].indexOf("ip") + 4,
-					lines[1].indexOf(";"));
-
-			// if the vm is not running, the port is -1
-			if (!port.equals("-1"))
-				vm.setVmOvsPort("vif" + port + ".0");
-			else
-				vm.setVmOvsPort(port);
-
-			vm.setVmIpAddr(ip);
-		}
-	}
-
-	private static void getVmSwPort() {
+	private static void getDataFromController() {
+		// TODO Auto-generated method stub
+		List<Device> devices = null;
 		try {
 			devices = DevicesJSON.getDeviceSummaries();
-			Iterator<VMData> it = vms.iterator();
-			Iterator<Device> itd;
-
-			while (it.hasNext()) {
-				vm = it.next();
-				itd = devices.iterator();
-				while (itd.hasNext()) {
-					device = itd.next();
-					if (vm.getVmMacAddr().equals(device.getMacAddress())) {
-						vm.setVmSwPort(String.valueOf(device.getSwitchPort()));
-						break;
+			List<Port> ports = null;
+			Device device = null;
+			Switch sw = null;
+			Port port = null;
+			VmData vm = new VmData();
+			Iterator<Device> itd = devices.iterator();
+			while (itd.hasNext()) {
+				device = itd.next();
+				if (device.getIpv4() != null) {
+					vm.setVmIpAddr(device.getIpv4());
+				}
+				if (device.getMacAddress() != null) {
+					vm.setVmMacAddr(device.getMacAddress());
+				}
+				if (device.getAttachedSwitch() != null) {
+					vm.setVmSwitch(device.getAttachedSwitch());
+				}
+				if (device.getSwitchPort() != 0) {
+					vm.setVmSwitchPort(String.valueOf(device.getSwitchPort()));
+				}
+				if (device.getLastSeen() != null) {
+					vm.setLastSeen(device.getLastSeen());
+				}
+				sw = FloodlightProvider.getSwitch(device.getAttachedSwitch(), false);
+				if (sw != null) {
+					ports = sw.getPorts();
+					Iterator<Port> itp = ports.iterator();
+					while (itp.hasNext()) {
+						port = itp.next();
+						if (port.getPortNumber().equals(vm.getVmSwitchPort())) {
+							vm.setVmVifNumber(port.getName());
+							break;
+						}
 					}
 				}
 			}
 		} catch (JSONException e) {
-			// TODO: handle exception
+			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
 
+	private static void getDataFromXenServer() {
+		// TODO Auto-generated method stub
+		String command = "xe vif-list | grep uuid";
+		String command1 = "xe vif-param-list uuid=" + " | grep MAC";
+		String command2 = "xe vm-param-list uuid="
+				+ " | grep -E \'dom-id|network\'";
+	}
 }

@@ -5,7 +5,7 @@ import java.util.Date;
 public class Device {
 
 	String macAddress, ipv4, attachedSwitch;
-	int switchPort;
+	int switchPort = 0;
 	Date lastSeen;
 
 	public String getMacAddress() {

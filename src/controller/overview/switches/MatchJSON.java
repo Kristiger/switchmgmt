@@ -36,13 +36,16 @@ public class MatchJSON {
 		if (obj.has("eth_src"))
 			if (!obj.getString("eth_src").equals("00:00:00:00:00:00"))
 				match.setDataLayerSource(obj.getString("eth_src"));
-		if (obj.has("eth_type"))
+		if (obj.has("eth_type")) {
+			String eth_type = obj.getString("eth_type");
+			eth_type = eth_type.replaceAll("0x", "");
+			if (eth_type.length() == 3)
+				eth_type = "0" + eth_type;
+			eth_type = "0x" + eth_type;
 			if (!obj.getString("eth_type").equals("0x0000")) {
-				String eth_type = obj.getString("eth_type");
-				eth_type = eth_type.replaceAll("0x", "");
-				eth_type = "0x" + eth_type;
 				match.setDataLayerType(eth_type);
 			}
+		}
 		if (obj.has("eth_vlan_vid"))
 			if (obj.getInt("eth_vlan_vid") > 0)
 				match.setDataLayerVLAN(String.valueOf(obj
@@ -51,14 +54,14 @@ public class MatchJSON {
 			if (obj.getInt("eth_vlan_pcp") != 0)
 				match.setDataLayerPCP(String.valueOf(obj.getInt("eth_vlan_pcp")));
 		if (obj.has("in_port"))// int or "local"
-			if (!obj.getString("in_port").equals("0x00")) {
+			if (!obj.getString("in_port").equals("0")) {
 				match.setInputPort(obj.getString("in_port"));
 			}
 		if (obj.has("ipv4_dst"))
 			if (!obj.getString("ipv4_dst").equals("0.0.0.0"))
 				match.setNetworkDestination(obj.getString("ipv4_dst"));
 		if (obj.has("ip_proto"))
-			if (!obj.getString("ip_proto").equals(""))
+			if (!obj.getString("ip_proto").equals("0x00"))
 				match.setNetworkProtocol(obj.getString("ip_proto"));
 		if (obj.has("ipv4_src"))
 			if (!obj.getString("ipv4_src").equals("0.0.0.0"))
@@ -76,17 +79,17 @@ public class MatchJSON {
 				match.setTransportSource(String.valueOf(obj.getInt("tp_src")));
 		if (obj.has("tcp_src"))
 			if (obj.getInt("tcp_src") != 0)
-				match.setDataLayerSource(String.valueOf(obj.getInt("tcp_src")));
+				match.setTcpSource(String.valueOf(obj.getInt("tcp_src")));
 		if (obj.has("tcp_dst"))
 			if (obj.getInt("tcp_dst") != 0)
-				match.setDataLayerSource(String.valueOf(obj.getInt("tcp_dst")));
+				match.setTcpDestination((String.valueOf(obj.getInt("tcp_dst"))));
 		if (obj.has("udp_src"))
 			if (obj.getInt("udp_src") != 0)
-				match.setDataLayerSource(String.valueOf(obj.getInt("udp_src")));
+				match.setUdpSource(String.valueOf(obj.getInt("udp_src")));
 		if (obj.has("udp_dst"))
 			if (obj.getInt("udp_dst") != 0)
-				match.setDataLayerSource(String.valueOf(obj.getInt("udp_dst")));
-		
+				match.setUdpDestination((String.valueOf(obj.getInt("udp_dst"))));
+
 		return match;
 	}
 }

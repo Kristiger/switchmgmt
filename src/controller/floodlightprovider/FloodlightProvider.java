@@ -9,10 +9,10 @@ import model.overview.FirewallRule;
 import model.overview.Flow;
 import model.overview.QosPolicy;
 import model.overview.Switch;
-import model.overview.VMData;
+import model.overview.VmData;
 import controller.overview.switches.FlowJSON;
 import controller.overview.switches.SwitchesJSON;
-import controller.overview.vms.VMDataGetter;
+import controller.overview.vms.VmDataGetter;
 import controller.tools.firewall.json.RuleJSON;
 import controller.tools.flowmanager.json.StaticFlowManagerJSON;
 import controller.util.JSONException;
@@ -23,7 +23,7 @@ public class FloodlightProvider {
 	private static List<Flow> staticFlows = new ArrayList<Flow>();
 	private static List<Flow> realFlows = new ArrayList<Flow>();
 	private static List<QosPolicy> qospolicies = new ArrayList<QosPolicy>();
-	private static List<VMData> vms = new ArrayList<VMData>();
+	private static List<VmData> vms = new ArrayList<VmData>();
 	
 	private static String IP, PORT = "8080";
 
@@ -121,22 +121,22 @@ public class FloodlightProvider {
 		qospolicies.add(qospolicy);
 	}
 
-	public static List<VMData> getVms(boolean update) {
+	public static List<VmData> getVms(boolean update) {
 		if(update){
-			VMDataGetter.updateVMDatas();
+			VmDataGetter.updateVMDatas();
 		}
-		vms = VMDataGetter.getVmDatas();
+		vms = VmDataGetter.getVmDatas();
 		return vms;
 	}
 	
-	public static VMData getVM(String swport){
+	public static VmData getVM(String swport){
 		if(vms.size() == 0)
 			vms = getVms(false);
-		Iterator<VMData> it = vms.iterator();
-		VMData vm = null;
+		Iterator<VmData> it = vms.iterator();
+		VmData vm = null;
 		while(it.hasNext()){
 			vm = it.next();
-			if(vm.getVmSwPort().equals(swport))
+			if(vm.getVmSwitchPort().equals(swport))
 				return vm;
 		}
 		return null;

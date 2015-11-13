@@ -1,6 +1,6 @@
 package model.overview;
 
-public class Port {
+public class Port implements Comparable<Port>{
 
 	String portNumber, receivePackets, transmitPackets, receiveBytes, transmitBytes, receiveDropped, transmitDropped, receiveErrors,
 	transmitErrors, receieveFrameErrors, receieveOverrunErrors, receiveCRCErrors, collisions, advertisedFeatures, config, currentFeatures, 
@@ -221,5 +221,11 @@ public class Port {
 
 	public void setCollisions(String collisions) {
 		this.collisions = collisions;
+	}
+
+	@Override
+	public int compareTo(Port o) {
+		// TODO Auto-generated method stub
+		return this.portNumber.compareTo(o.portNumber);
 	} 
 }
