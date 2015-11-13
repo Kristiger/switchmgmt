@@ -26,7 +26,8 @@ public class Avior {
 					new Gui(IP);
 				} else {
 					System.out
-							.println("Could not reach controller from parameter specified, going to main screen.");
+							.println("Could not reach controller from parameter specified, "
+									+ "going to main screen.");
 					try {
 						new Startup();
 					} catch (Exception e) {

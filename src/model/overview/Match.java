@@ -16,7 +16,7 @@ public class Match {
 			networkSourceMaskLength, networkTypeOfService,
 			transportDestination, transportSource, wildcards;
 
-	String ipProto, tcpSource, tcpDestination, udpSource, udpDestination,
+	String tcpSource, tcpDestination, udpSource, udpDestination,
 			stcpSource, stcpDestination, icmpv4Type, icmpv4Code, mplsLable,
 			mplsTc, mplsBos, tunnelId, metadata;
 
@@ -208,20 +208,7 @@ public class Match {
 			serial = serial.concat(",\"tp_src\":\"" + this.transportSource
 					+ "\"");
 		}
-		// if (this.wildcards != null) {
-		// serial = serial.concat(",\"wildcards\":\"" + this.wildcards + "\"");
-		// This is not able to be set by the user yet
-		// if(!this.networkDestinationMaskLength.isEmpty())
-		// if(serial.length() > 5)
-		// serial = serial.concat(",");
-		// serial = serial.concat("\"ingress-port\":\"" +
-		// this.networkDestinationMaskLength + "\"");
-		// This is not able to be set by the user yet
-		// if(!this.networkSourceMaskLength.isEmpty())
-		// if(serial.length() > 5)
-		// serial = serial.concat(",");
-		// serial = serial.concat("\"ingress-port\":\"" +
-		// this.networkSourceMaskLength + "\"");
+		
 		return serial;
 	}
 
@@ -243,15 +230,15 @@ public class Match {
 				serial = serial.concat(", ");
 			serial = serial.concat("ether-type:" + this.dataLayerType);
 		}
-		if (this.dataLayerVLAN != null) {
+		if (this.dataLayerVLAN != null && !this.dataLayerVLAN.equals("-1")) {
 			if (serial.length() > 5)
 				serial = serial.concat(", ");
 			serial = serial.concat("vlan-id:" + this.dataLayerVLAN);
-		}
-		if (this.dataLayerPCP != null) {
-			if (serial.length() > 5)
-				serial = serial.concat(", ");
-			serial = serial.concat("vlan-priority:" + this.dataLayerPCP);
+			if (this.dataLayerPCP != null) {
+				if (serial.length() > 5)
+					serial = serial.concat(", ");
+				serial = serial.concat("vlan-priority:" + this.dataLayerPCP);
+			}
 		}
 		if (this.inputPort != null) {
 			if (serial.length() > 5)

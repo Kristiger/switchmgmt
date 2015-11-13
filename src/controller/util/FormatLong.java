@@ -29,4 +29,18 @@ public class FormatLong {
 		}
 		return "" + paramLong;
 	}
+	
+	/* Formats longs for proper representation in the paint automatically*/
+	public static String formatData(long paramLong){
+		if (paramLong >= 1000000000L) {
+			return paramLong / 1000000000L + " GB";
+		}
+		if (paramLong >= 10000000L) {
+			return paramLong / 1000000L + " MB";
+		}
+		if (paramLong >= 1000L) {
+			return paramLong / 1000L + " KB";
+		}
+		return "" + paramLong + "B";
+	}
 }

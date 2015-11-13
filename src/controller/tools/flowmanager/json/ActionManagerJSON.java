@@ -5,11 +5,13 @@ import java.math.BigInteger;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import java.util.logging.Logger;
 
 import model.overview.Action;
 import controller.floodlightprovider.FloodlightProvider;
@@ -26,6 +28,7 @@ public class ActionManagerJSON {
 	private static JSONObject obj, jsonobj;
 	private static JSONArray json;
 	private static Future<Object> future;
+	private static Logger log = Logger.getGlobal();
 
 	// This parses JSON from the restAPI to get all the actions and values for
 	// that action by it's flow name
@@ -35,7 +38,7 @@ public class ActionManagerJSON {
 		List<Action> actions = new ArrayList<Action>();
 		// Get the array of actions
 		future = Deserializer.readJsonObjectFromURL("http://" + IP + ":" + PORT
-				+ "/wm/staticflowpusher/list/" + dpid + "/json");
+				+ "/wm/staticflowentrypusher/list/" + dpid + "/json");
 		try {
 			obj = (JSONObject) future.get(5, TimeUnit.SECONDS);
 		} catch (InterruptedException e1) {
@@ -48,111 +51,90 @@ public class ActionManagerJSON {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
-		json = obj.getJSONArray(dpid);
+		if (obj == null) {
+			log.info("no static flows for action");
+			return actions;
+		}
+		jsonobj = obj.getJSONObject(dpid);
+		for (int i = 0; i < jsonobj.length(); i++) {
 
-		for (int i = 0; i < json.length(); i++) {
-
-			if (!json.getJSONObject(i).has(flowName))
+			if (!jsonobj.has(flowName))
 				continue;
+			obj = jsonobj.getJSONObject(flowName);
 
-			if (!json.getJSONObject(i).getJSONObject(flowName)
-					.isNull("actions")) {
-				jsonobj = json.getJSONObject(i).getJSONObject(flowName)
-						.getJSONObject("actions");
-
-				//jsonobj = (JSONObject) jsonobj.get("actions");
-				if (jsonobj.has("none"))
-					actions.add(new Action("none", jsonobj.getString("none")));
-				if (jsonobj.has("output"))
-					actions.add(new Action("output", jsonobj
-							.getString("output")));
-				if (jsonobj.has("enqueue"))
-					actions.add(new Action("enqueue", jsonobj
-							.getString("enqueue")));
-				if (jsonobj.has("strip_vlan"))
-					actions.add(new Action("strip_vlan", jsonobj
-							.getString("strip_vlan")));
-				if (jsonobj.has("set_vlan_vid"))
-					actions.add(new Action("set_vlan_vid", jsonobj
-							.getString("set_vlan_vid")));
-				if (jsonobj.has("set_vlan_pcp"))
-					actions.add(new Action("set_vlan_pcp", jsonobj
-							.getString("set_vlan_pcp")));
-				if (jsonobj.has("set_eth_src"))
-					actions.add(new Action("set_eth_src", jsonobj
-							.getString("set_eth_src")));
-				if (jsonobj.has("set_eth_dst"))
-					actions.add(new Action("set_eth_dst", jsonobj
-							.getString("set_eth_dst")));
-				if (jsonobj.has("set_ip_tos"))
-					actions.add(new Action("set_ip_tos", jsonobj
-							.getString("set_ip_tos")));
-				if (jsonobj.has("set_ipv4_src"))
-					actions.add(new Action("set_ipv4_src", jsonobj
-							.getString("set_ipv4_src")));
-				if (jsonobj.has("set_ipv4_dst"))
-					actions.add(new Action("set_ipv4_dst", jsonobj
-							.getString("set_ipv4_dst")));
-				if (jsonobj.has("set_tp_src"))
-					actions.add(new Action("set_tp_src", jsonobj
-							.getString("set_tp_src")));
-				if (jsonobj.has("set_tp_dst"))
-					actions.add(new Action("set_tp_dst", jsonobj
-							.getString("set_tp_dst")));
-
-				/*String act = jsonobj.getString("actions");
-				String action[] = act.split(",");
-				String s[];
-
-				for (int j = 0; j < action.length; j++) {
-					s = action[j].split("=");
-					if (s[0].equals("none"))
-						actions.add(new Action("none", s[1]));
-
-					else if (s[0].equals("output"))
-						actions.add(new Action("output", s[1]));
-
-					else if (s.equals("enqueue")) {
-						// String[] param = s.split("q");
-						// String queue = param[0] + ":" + param[1];
-						// actions.add(new Action("enqueue", queue));
-						actions.add(new Action("enqueue", s[1]));
-					} else if (s.equals("strip_vlan"))
-						actions.add(new Action("strip_vlan", s[1]));
-
-					else if (s.equals("set_vlan_vid"))
-						actions.add(new Action("set_vlan_vid", s[1]));
-
-					else if (s.equals("set_vlan_pcp"))
-						actions.add(new Action("set_vlan_pcp", s[1]));
-
-					else if (s.equals("set_eth_src"))
-						actions.add(new Action("set-eth_src", s[1]));
-
-					else if (s.equals("set_eth_dst"))
-						actions.add(new Action("set_eth_dst", s[1]));
-
-					else if (s.equals("set_ip_tos"))
-						actions.add(new Action("set_ip_tos", s[1]));
-
-					else if (s.equals("set_ipv4_src"))
-						actions.add(new Action("set_ipv4_src", s[1]));
-
-					else if (s.equals("set_ipv4_dst"))
-						actions.add(new Action("set_ipv4_dst", s[1]));
-
-					else if (s.equals("set_tp_src"))
-						actions.add(new Action("set_tp_src", s[1]));
-
-					else if (s.equals("set_tp_dst"))
-						actions.add(new Action("set_tp_dst", s[1]));
-
-					else
-						System.out.println("unrecognized value");
-				}*/
+			if (!obj.isNull("actions")) {
+				obj = obj.getJSONArray("actions").getJSONObject(0);
+				String objActionType = obj.getString("type");
+				try {
+					if (objActionType.equals("OUTPUT")) {
+						actions.add(new Action("output", String.valueOf(obj
+								.getInt("port")), "Port"));
+					} else if (objActionType.equals("OPAQUE_ENQUEUE")) {
+						actions.add(new Action("enqueue", String.valueOf(obj
+								.getInt("port") + ":" + obj.getInt("queueId")),
+								"Port:Queue ID"));
+					} else if (objActionType.equals("STRIP_VLAN")) {
+						actions.add(new Action("strip-vlan", ""));
+					} else if (objActionType.equals("SET_VLAN_ID")) {
+						actions.add(new Action("set-vlan-id", String
+								.valueOf(obj.getInt("virtualLanIdentifier")),
+								"VLAN ID"));
+					} else if (objActionType.equals("SET_VLAN_PCP")) {
+						actions.add(new Action(
+								"set-vlan-priority",
+								String.valueOf(obj
+										.getInt("virtualLanPriorityCodePoint")),
+								"VLAN PCP"));
+					} else if (objActionType.equals("SET_DL_SRC")) {
+						String dl = obj.getString("dataLayerAddress");
+						actions.add(new Action("set-src-mac", dl,
+								"Data Layer Address"));
+					} else if (objActionType.equals("SET_DL_DST")) {
+						String dl = obj.getString("dataLayerAddress");
+						actions.add(new Action("set-dst-mac", dl,
+								"Data Layer Address"));
+					} else if (objActionType.equals("SET_NW_TOS")) {
+						actions.add(new Action("set-tos-bits", String
+								.valueOf(obj.getInt("networkTypeOfService")),
+								"Network Type Of Service"));
+					} else if (objActionType.equals("SET_NW_SRC")) {
+						long ip = obj.getLong("networkAddress");
+						byte[] bytes = BigInteger.valueOf(ip).toByteArray();
+						InetAddress address = null;
+						try {
+							address = InetAddress.getByAddress(bytes);
+						} catch (UnknownHostException e) {
+							System.out.println("Getting address failed.");
+							e.printStackTrace();
+						}
+						actions.add(new Action("set-src-ip", address.toString()
+								.replaceAll("/", ""), "Network Address"));
+					} else if (objActionType.equals("SET_NW_DST")) {
+						long ip = obj.getLong("networkAddress");
+						byte[] bytes = BigInteger.valueOf(ip).toByteArray();
+						InetAddress address = null;
+						try {
+							address = InetAddress.getByAddress(bytes);
+						} catch (UnknownHostException e) {
+							System.out.println("Getting address failed.");
+							e.printStackTrace();
+						}
+						actions.add(new Action("set-dst-ip", address.toString()
+								.replaceAll("/", ""), "Network Address"));
+					} else if (objActionType.equals("SET_TP_SRC")) {
+						actions.add(new Action("set-src-port", String
+								.valueOf(obj.getInt("transportPort")),
+								"Transport Port"));
+					} else if (objActionType.equals("SET_TP_DST")) {
+						actions.add(new Action("set-dst-port", String
+								.valueOf(obj.getInt("transportPort")),
+								"Transport Port"));
+					}
+				} catch (Exception e1) {
+					e1.printStackTrace();
+				}
 			}
 		}
 		return actions;
 	}
-
 }

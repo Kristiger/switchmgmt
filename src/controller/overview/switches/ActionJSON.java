@@ -31,8 +31,7 @@ public class ActionJSON {
 			String objActionType = obj.getString("type");
 			try {
 				if (objActionType.equals("OUTPUT")) {
-					actions.add(new Action("output", String.valueOf(obj
-							.getInt("port")), "Port"));
+					actions.add(new Action("output", String.valueOf(obj.getInt("port")), "Port"));
 				} else if (objActionType.equals("OPAQUE_ENQUEUE")) {
 					actions.add(new Action("enqueue", String.valueOf(obj
 							.getInt("port") + ":" + obj.getInt("queueId")),
@@ -104,50 +103,6 @@ public class ActionJSON {
 	public static List<Action> getActions(JSONObject obj) throws JSONException,
 			IOException {
 		List<Action> actions = new ArrayList<Action>();
-		/*
-		 * if(!obj.has("actions")){ return actions; }
-		 */
-		/*
-		 * String act = obj.getString("actions"); String[] list =
-		 * act.split(","); for (String string : list) { String s[] =
-		 * string.split("="); if(s[0].equals("output")) actions.add(new
-		 * Action(s[0], s[1]));
-		 * 
-		 * else if (s[0].equals("strip_vlan")) actions.add(new Action(s[0],
-		 * s[1]));
-		 * 
-		 * else if (s[0].equals("set_vlan_vid")) actions.add(new Action(s[0],
-		 * s[1]));
-		 * 
-		 * else if (s[0].equals("set_vlan_pcp")) actions.add(new Action(s[0],
-		 * s[1]));
-		 * 
-		 * else if (s[0].equals("set_eth_src")) actions.add(new Action(s[0],
-		 * s[1]));
-		 * 
-		 * else if (s[0].equals("set_eth_dst")) actions.add(new Action(s[0],
-		 * s[1]));
-		 * 
-		 * else if (s[0].equals("set_ip_tos")) actions.add(new Action(s[0],
-		 * s[1]));
-		 * 
-		 * else if (s[0].equals("set_ipv4_src")) actions.add(new Action(s[0],
-		 * s[1]));
-		 * 
-		 * else if (s[0].equals("set_ipv4_dst")) actions.add(new Action(s[0],
-		 * s[1]));
-		 * 
-		 * else if (s[0].equals("set_tp_src")) actions.add(new Action(s[0],
-		 * s[1]));
-		 * 
-		 * else if (s[0].equals("set_tp_dst")) actions.add(new Action(s[0],
-		 * s[1]));
-		 * 
-		 * else if(s[0].equals("enqueue")){ //String queue[] = s[1].split("q");
-		 * //String value = queue[0] + ":" + queue[1]; //actions.add(new
-		 * Action(s[0], value)); actions.add(new Action(s[0], s[1])); } else
-		 * System.out.println("unrecognized type"); }
-		 */
 
 		if (obj.has("output")) {
 			actions.add(new Action("output", obj.getString("output")));

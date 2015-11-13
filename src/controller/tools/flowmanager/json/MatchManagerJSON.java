@@ -27,13 +27,14 @@ public class MatchManagerJSON {
 	private static JSONArray json;
 	private static Future<Object> future;
 
-	// This parses JSON from the restAPI to get the match of a flow and all it's values
+	// This parses JSON from the restAPI to get the match of a flow and all it's
+	// values
 	public static Match getMatch(String dpid, String flowName)
 			throws JSONException, IOException {
 		Match match = new Match();
 		// Get the match object
-		future = Deserializer.readJsonObjectFromURL("http://" + IP
-				+ ":" + PORT + "/wm/staticflowpusher/list/" + dpid + "/json");
+		future = Deserializer.readJsonObjectFromURL("http://" + IP + ":" + PORT
+				+ "/wm/staticflowentrypusher/list/" + dpid + "/json");
 		try {
 			obj = (JSONObject) future.get(5, TimeUnit.SECONDS);
 		} catch (InterruptedException e) {
@@ -46,64 +47,74 @@ public class MatchManagerJSON {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		json = obj.getJSONArray(dpid);
-		
-		for(int i = 0; i < json.length(); i++){
-			if(!json.getJSONObject(i).has(flowName))
+		if (obj == null) {
+			return match;
+		}
+		jsonobj = obj.getJSONObject(dpid);
+
+		for (int i = 0; i < jsonobj.length(); i++) {
+			if (!jsonobj.has(flowName))
 				continue;
-			obj = json.getJSONObject(i).getJSONObject(flowName).getJSONObject("match");
-			
-			// Here we check the values, if they are default we set them to emptry strings.
-			// This way they don't confuse the user into thinking they set something
-			// they didn't		
-					
-			if(obj.length() == 0){
+			obj = jsonobj.getJSONObject(flowName).getJSONObject("match");
+
+			// Here we check the values, if they are default we set them to
+			// emptry strings.
+			// This way they don't confuse the user into thinking they set
+			// something
+			// they didn't
+
+			if (obj.length() == 0) {
 				return match;
 			}
-			if(obj.has("eth_dst"))
-				if (!obj.getString("eth_dst").equals("00:00:00:00:00:00"))
-					match.setDataLayerDestination(obj.getString("eth_dst"));
-			if(obj.has("eth_src"))
-				if (!obj.getString("eth_src").equals("00:00:00:00:00:00"))
-					match.setDataLayerSource(obj.getString("eth_src"));
-			if(obj.has("eth_type"))
-				if (!obj.getString("eth_type").equals("0x0000"))
-					match.setDataLayerType(obj.getString("eth_type"));
-			if(obj.has("eth_vlan_vid"))
-				if (obj.getInt("eth_vlan_vid") > 0)
+			if (obj.has("dataLayerDestination"))
+				if (!obj.getString("dataLayerDestination").equals(
+						"00:00:00:00:00:00"))
+					match.setDataLayerDestination(obj
+							.getString("dataLayerDestination"));
+			if (obj.has("dataLayerSource"))
+				if (!obj.getString("dataLayerSource").equals(
+						"00:00:00:00:00:00"))
+					match.setDataLayerSource(obj.getString("dataLayerSource"));
+			if (obj.has("dataLayerType"))
+				if (!obj.getString("dataLayerType").equals("0x0000"))
+					match.setDataLayerType(obj.getString("dataLayerType"));
+			if (obj.has("dataLayerVirtualLan")) {
+				if (obj.getInt("dataLayerVirtualLan") > 0) {
 					match.setDataLayerVLAN(String.valueOf(obj
-							.getInt("eth_vlan_vid")));
-			if(obj.has("eth_vlan_pcp"))
-				if (obj.getInt("eth_vlan_pcp") != 0)
-					match.setDataLayerPCP(String.valueOf(obj
-							.getInt("eth_vlan_pcp")));
-			if(obj.has("in_port"))
-				if (obj.getInt("in_port") != 0)
-					match.setInputPort(String.valueOf(obj.getInt("in_port")));
-			if(obj.has("ipv4_dst"))
-				if (!obj.getString("ipv4_dst").equals("0.0.0.0"))
-					match.setNetworkDestination(obj.getString("ipv4_dst"));
-			// match.setNetworkDestinationMaskLength(String.valueOf(obj.getInt("networkDestinationMaskLen")));
-			if(obj.has("ip_proto"))
-				if (obj.getInt("ip_proto") != 0)
+							.getInt("dataLayerVirtualLan")));
+					if (obj.has("dataLayerVirtualLanPriorityCodePoint"))
+						if (obj.getInt("dataLayerVirtualLanPriorityCodePoint") != 0)
+							match.setDataLayerPCP(String.valueOf(obj
+									.getInt("dataLayerVirtualLanPriorityCodePoint")));
+				}
+			}
+			if (obj.has("inputPort"))
+				if (obj.getInt("inputPort") != 0)
+					match.setInputPort(String.valueOf(obj.getInt("inputPort")));
+			if (obj.has("networkDestination"))
+				if (!obj.getString("networkDestination").equals("0.0.0.0"))
+					match.setNetworkDestination(obj.getString("networkDestination"));
+			if (obj.has("networkProtocol"))
+				if (obj.getInt("networkProtocol") != 0)
 					match.setNetworkProtocol(String.valueOf(obj
-							.getInt("ip_proto")));
-			if(obj.has("ipv4_src"))
-				if (!obj.getString("ipv4_src").equals("0.0.0.0"))
-					match.setNetworkSource(obj.getString("ipv4_src"));
-			// match.setNetworkSourceMaskLength(String.valueOf(obj.getInt("networkSourceMaskLen")));
-			if(obj.has("ip_tos"))
-				if (obj.getInt("ip_tos") != 0)
+							.getInt("networkProtocol")));
+			if (obj.has("networkSource"))
+				if (!obj.getString("networkSource").equals("0.0.0.0"))
+					match.setNetworkSource(obj.getString("networkSource"));
+			if (obj.has("networkTypeOfService"))
+				if (obj.getInt("networkTypeOfService") != 0)
 					match.setNetworkTypeOfService(String.valueOf(obj
-							.getInt("ip_tos")));
-			if(obj.has("tp_dst"))
-				if (obj.getInt("tp_dst") != 0)
+							.getInt("networkTypeOfService")));
+			if (obj.has("transportDestination"))
+				if (obj.getInt("transportDestination") != 0)
 					match.setTransportDestination(String.valueOf(obj
-							.getInt("tp_dst")));
-			if(obj.has("tp_src"))
-				if (obj.getInt("tp_src") != 0)
+							.getInt("transportDestination")));
+			if (obj.has("transportSource"))
+				if (obj.getInt("transportSource") != 0)
 					match.setTransportSource(String.valueOf(obj
-							.getInt("tp_src")));
+							.getInt("transportSource")));
+			if(obj.has("wildcards"))
+				match.setWildcards(String.valueOf(obj.getLong("wildcards")));
 		}
 		return match;
 	}

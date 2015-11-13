@@ -2,9 +2,11 @@ package model.overview;
 
 public class Port {
 
-	String portNumber, receivePackets, transmitPackets, receiveBytes, transmitBytes, receiveDropped, transmitDropped, receiveErrors,
+	String portNumber, receiveDropped, transmitDropped, receiveErrors,
 	transmitErrors, receieveFrameErrors, receieveOverrunErrors, receiveCRCErrors, collisions, advertisedFeatures, config, currentFeatures, 
 	hardwareAddress, name, peerFeatures, state, supportedFeatures, errors;
+	
+	Long receivePackets, receiveBytes, transmitPackets, transmitBytes;
 	
 	public String getAdvertisedFeatures() {
 		return advertisedFeatures;
@@ -127,35 +129,35 @@ public class Port {
 		this.portNumber = portNumber;
 	}
 
-	public String getReceivePackets() {
+	public Long getReceivePackets() {
 		return receivePackets;
 	}
 
-	public void setReceivePackets(String receivePackets) {
+	public void setReceivePackets(Long receivePackets) {
 		this.receivePackets = receivePackets;
 	}
 
-	public String getTransmitPackets() {
+	public Long getTransmitPackets() {
 		return transmitPackets;
 	}
 
-	public void setTransmitPackets(String transmitPackets) {
+	public void setTransmitPackets(Long transmitPackets) {
 		this.transmitPackets = transmitPackets;
 	}
 
-	public String getReceiveBytes() {
+	public Long getReceiveBytes() {
 		return receiveBytes;
 	}
 
-	public void setReceiveBytes(String receiveBytes) {
+	public void setReceiveBytes(Long receiveBytes) {
 		this.receiveBytes = receiveBytes;
 	}
 
-	public String getTransmitBytes() {
+	public Long getTransmitBytes() {
 		return transmitBytes;
 	}
 
-	public void setTransmitBytes(String transmitBytes) {
+	public void setTransmitBytes(Long transmitBytes) {
 		this.transmitBytes = transmitBytes;
 	}
 

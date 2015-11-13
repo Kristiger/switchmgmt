@@ -3,6 +3,7 @@ package controller.overview.table;
 import java.util.ArrayList;
 import java.util.List;
 
+import controller.util.FormatLong;
 import model.overview.Flow;
 
 public class FlowToTable {
@@ -21,8 +22,8 @@ public class FlowToTable {
 				stringList.add(flow.getPriority());
 				stringList.add(flow.getMatch().toString());
 				stringList.add(flow.actionsToString());
-				stringList.add(flow.getPacketCount());
-				stringList.add(flow.getByteCount());
+				stringList.add(FormatLong.formatData(flow.getPacketCount()));
+				stringList.add(FormatLong.formatData(flow.getByteCount()));
 				stringList.add(flow.getDurationSeconds());
 
 				if (flow.getIdleTimeOut() != null) {

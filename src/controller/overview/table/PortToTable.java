@@ -3,6 +3,7 @@ package controller.overview.table;
 import java.util.ArrayList;
 import java.util.List;
 
+import controller.util.FormatLong;
 import model.overview.Port;
 
 public class PortToTable {
@@ -18,15 +19,16 @@ public class PortToTable {
 				List<String> stringList = new ArrayList<String>();
 				stringList.add(port.getPortNumber());
 				// stringList.add(port.getStatus());
-				stringList.add(port.getTransmitBytes());
-				stringList.add(port.getReceiveBytes());
-				stringList.add(port.getTransmitPackets());
-				stringList.add(port.getReceivePackets());
+				stringList.add(FormatLong.formatData(port.getTransmitBytes()));
+				stringList.add(FormatLong.formatData(port.getReceiveBytes()));
+				stringList.add(FormatLong.formatData(port.getTransmitPackets()));
+				stringList.add(FormatLong.formatData(port.getReceivePackets()));
 				stringList.add(String.valueOf(Integer.valueOf(port
 						.getTransmitDropped())
 						+ Integer.valueOf(port.getReceiveDropped())));
 				
 				stringList.add(port.getErrors());
+				stringList.add(port.getName());
 				arrData[count] = stringList.toArray(new String[stringList
 						.size()]);
 				count++;

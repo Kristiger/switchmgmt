@@ -56,13 +56,12 @@ public class ControllerJSON {
 			// TODO Auto-generated catch block
 			e2.printStackTrace();
 		}
-
-		if (obj == null)
-			return info;
-		if (obj.getBoolean("healthy")) {
-			info.add(1, "Yes");
-		} else {
-			info.add(1, "No");
+		if (obj != null) {
+			if (obj.has("healthy") && obj.getBoolean("healthy")) {
+				info.add(1, "Yes");
+			} else {
+				info.add(1, "No");
+			}
 		}
 
 		// MEMORY
@@ -78,10 +77,15 @@ public class ControllerJSON {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		long free = obj.getLong("free");
-		long total = obj.getLong("total");
-		info.add(2, FormatLong.formatBytes(free, true, false) + " free of "
-				+ FormatLong.formatBytes(total, true, false));
+		if (obj != null) {
+			long free = 0l, total = 0l;
+			if (obj.has("free"))
+				free = obj.getLong("free");
+			if (obj.has("total"))
+				total = obj.getLong("total");
+			info.add(2, FormatLong.formatBytes(free, true, false) + " free of "
+					+ FormatLong.formatBytes(total, true, false));
+		}
 
 		// MODULES
 		try {
@@ -96,20 +100,21 @@ public class ControllerJSON {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
-		Iterator<?> myIter = obj.keys();
-		String modules = "";
-		while (myIter.hasNext()) {
-			try {
-				String key = (String) myIter.next();
-				if (obj.get(key) instanceof JSONObject) {
-					modules = modules.concat(key + " ");
+		if (obj != null) {
+			Iterator<?> myIter = obj.keys();
+			String modules = "";
+			while (myIter.hasNext()) {
+				try {
+					String key = (String) myIter.next();
+					if (obj.get(key) instanceof JSONObject) {
+						modules = modules.concat(key + " ");
+					}
+				} catch (Exception e) {
+					// Fail silently
 				}
-			} catch (Exception e) {
-				// Fail silently
 			}
+			info.add(modules);
 		}
-		info.add(modules);
-
 		return info;
 	}
 }

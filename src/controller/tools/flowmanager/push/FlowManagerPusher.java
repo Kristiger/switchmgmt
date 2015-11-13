@@ -31,7 +31,7 @@ public class FlowManagerPusher {
 
 		String jsonResponse = "";
 		URL url = new URL("http://" + IP + ":" + PORT
-				+ "/wm/staticflowpusher/json");
+				+ "/wm/staticflowentrypusher/json");
 		URLConnection conn = url.openConnection();
 		conn.setDoOutput(true);
 		OutputStreamWriter wr = new OutputStreamWriter(conn.getOutputStream());
@@ -83,7 +83,7 @@ public class FlowManagerPusher {
 
 		String jsonResponse = "";
 
-		URL url = new URL("http://" + IP + ":8080/wm/staticflowpusher/json");
+		URL url = new URL("http://" + IP + ":8080/wm/staticflowentrypusher/json");
 		HttpURLConnection connection = null;
 		connection = (HttpURLConnection) url.openConnection();
 		connection.setRequestMethod("POST");

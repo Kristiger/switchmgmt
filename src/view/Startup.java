@@ -125,7 +125,7 @@ public class Startup {
 		});
 		mntmClose.setText("Close");
 
-		MenuItem mntmAbout = new MenuItem(menu, SWT.CASCADE);
+		/*MenuItem mntmAbout = new MenuItem(menu, SWT.CASCADE);
 		mntmAbout.setText("Help");
 
 		Menu menu_2 = new Menu(mntmAbout);
@@ -138,7 +138,7 @@ public class Startup {
 				new About();
 			}
 		});
-		mntmInfo.setText("About");
+		mntmInfo.setText("About");*/
 
 		try {
 			ImageData ideaImage = new ImageData(getClass().getResourceAsStream(

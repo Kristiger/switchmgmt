@@ -131,7 +131,7 @@ public class Gui {
 								loadSwitchData(sw);
 							}
 						});
-						sleep(2000);
+						sleep(1000);
 					}
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -588,6 +588,10 @@ public class Gui {
 		TableColumn tblclmnerrors = new TableColumn(table_ports, SWT.NONE);
 		tblclmnerrors.setWidth(100);
 		tblclmnerrors.setText("Errors");
+		
+		TableColumn tblclmnname = new TableColumn(table_ports, SWT.NONE);
+		tblclmnname.setWidth(100);
+		tblclmnname.setText("Name");
 
 		table_flows = new Table(detailed_switch, SWT.BORDER
 				| SWT.FULL_SELECTION);

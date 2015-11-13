@@ -29,17 +29,17 @@ public class DeviceToTable {
 				stringList.add(sum.getIpv4());
 			else
 				stringList.add("None");
-			
+
 			if (sum.getAttachedSwitch() != null)
 				stringList.add(sum.getAttachedSwitch());
 			else
 				stringList.add("None");
-			
+
 			if (sum.getSwitchPort() != 0)
 				stringList.add(String.valueOf(sum.getSwitchPort()));
 			else
 				stringList.add("None");
-			
+
 			stringList.add(String.valueOf(sum.getLastSeen()));
 
 			tableArr[count] = stringList.toArray(new String[stringList.size()]);

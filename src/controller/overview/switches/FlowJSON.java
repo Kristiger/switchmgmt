@@ -44,47 +44,49 @@ public class FlowJSON {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		//sometimes there is no flow syntax and may cause an Exception
-		if (obj.has("flows"))
-			json = obj.getJSONArray("flows");
-		else {
+		if (!obj.has(dpid))
 			return flows;
-		}
 
+		json = obj.getJSONArray(dpid);
 		if (json.length() != 0) {
 			for (int i = 0; i < json.length(); i++) {
 				obj = (JSONObject) json.get(i);
 				Flow flow = new Flow(dpid);
 
-				if (obj.has("actions"))
-					flow.setActions(ActionJSON.getActions(obj.getJSONObject("actions")));
+				if (obj.has("actions")) {
+					JSONArray action = obj.getJSONArray("actions");
+					flow.setActions(ActionJSON.getActions(action));
+				}
 
-				//OF13 like this
-				if (obj.has("instructions"))
-					flow.setActions(ActionJSON.getOF13Actions(obj
-							.getJSONObject("instructions")));
-
-				//OF13 has 256 tables and, through this can exclude those has no flows.
-				if (obj.has("match") && obj.getJSONObject("match").length() != 0)
+				// OF13 has 256 tables and, through this can exclude those has
+				// no flows.
+				if (obj.has("match")
+						&& obj.getJSONObject("match").length() != 0)
 					flow.setMatch(MatchJSON.getMatch(obj.getJSONObject("match")));
-				
+
 				if (obj.has("priority"))
 					flow.setPriority(String.valueOf(obj.getInt("priority")));
-				
-				if (obj.has("idleTimeoutSec") && obj.getInt("idleTimeoutSec") != 0)
-					flow.setIdleTimeOut(String.valueOf(obj.getInt("idleTimeoutSec")));
-				
-				if (obj.has("hardTimeoutSec") && obj.getInt("hardTimeoutSec") != 0)
-					flow.setHardTimeOut(String.valueOf(obj.getInt("hardTimeoutSec")));
+				if (obj.has("idleTimeout") && obj.getInt("idleTimeout") != 0)
+					flow.setIdleTimeOut(String.valueOf(obj
+							.getInt("idleTimeout")));
+				if (obj.has("hardTimeout") && obj.getInt("hardTimeout") != 0)
+					flow.setHardTimeOut(String.valueOf(obj
+							.getInt("hardTimeout")));
 				if (obj.has("durationSeconds"))
-					flow.setDurationSeconds(String.valueOf(obj.getInt("durationSeconds")));
-				
+					flow.setDurationSeconds(String.valueOf(obj
+							.getInt("durationSeconds")));
 				if (obj.has("packetCount"))
-					flow.setPacketCount(String.valueOf(obj.getInt("packetCount")));
-				
-				if(obj.has("byteCount"))
-					flow.setByteCount(FormatLong.formatBytes(obj.getLong("byteCount"), false, false));
-				
+					flow.setPacketCount(obj.getLong("packetCount"));
+				if (obj.has("byteCount"))
+					flow.setByteCount(obj.getLong("byteCount"));
+				if (obj.has("durationNanoseconds"))
+					flow.setDurationNanoseconds(String.valueOf(obj
+							.getLong("durationNanoseconds")));
+				if (obj.has("cookie"))
+					flow.setCookie(String.valueOf(obj.getLong("cookie")));
+				if (obj.has("tableId"))
+					flow.setTable(String.valueOf(obj.getInt("tableId")));
+
 				flows.add(flow);
 			}
 		}

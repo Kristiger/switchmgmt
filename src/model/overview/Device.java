@@ -5,7 +5,7 @@ import java.util.Date;
 public class Device {
 
 	String macAddress, ipv4, attachedSwitch;
-	int switchPort;
+	int switchPort, vlan;
 	Date lastSeen;
 
 	public String getMacAddress() {
@@ -22,6 +22,14 @@ public class Device {
 
 	public void setIpv4(String ipv4) {
 		this.ipv4 = ipv4;
+	}
+
+	public int getVlan() {
+		return vlan;
+	}
+
+	public void setVlan(int vlan) {
+		this.vlan = vlan;
 	}
 
 	public String getAttachedSwitch() {

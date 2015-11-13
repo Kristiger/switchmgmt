@@ -7,9 +7,9 @@ public class Flow implements Comparable<Flow> {
 
 	// priority, max is 32767,default is 32767.
 	String name, priority, cookie, idleTimeOut, hardTimeOut, outPort, sw,
-			durationSeconds, packetCount, byteCount;
-	String table, cookieMask;
-
+			durationSeconds, durationNanoseconds, table;
+	Long packetCount, byteCount;
+	
 	List<Action> actions;
 	Match match;
 
@@ -24,19 +24,43 @@ public class Flow implements Comparable<Flow> {
 		match = new Match();
 	}
 
-	public String getPacketCount() {
+	public String getCookie() {
+		return cookie;
+	}
+
+	public void setCookie(String cookie) {
+		this.cookie = cookie;
+	}
+
+	public String getSw() {
+		return sw;
+	}
+
+	public void setSw(String sw) {
+		this.sw = sw;
+	}
+
+	public String getTable() {
+		return table;
+	}
+
+	public void setTable(String table) {
+		this.table = table;
+	}
+
+	public Long getPacketCount() {
 		return packetCount;
 	}
 
-	public void setPacketCount(String packetCount) {
+	public void setPacketCount(Long packetCount) {
 		this.packetCount = packetCount;
 	}
 
-	public String getByteCount() {
+	public Long getByteCount() {
 		return byteCount;
 	}
 
-	public void setByteCount(String byteCount) {
+	public void setByteCount(Long byteCount) {
 		this.byteCount = byteCount;
 	}
 
@@ -46,6 +70,14 @@ public class Flow implements Comparable<Flow> {
 
 	public void setDurationSeconds(String durationSeconds) {
 		this.durationSeconds = durationSeconds;
+	}
+
+	public String getDurationNanoseconds() {
+		return durationNanoseconds;
+	}
+
+	public void setDurationNanoseconds(String durationNanoseconds) {
+		this.durationNanoseconds = durationNanoseconds;
 	}
 
 	public String getSwitch() {
@@ -177,7 +209,7 @@ public class Flow implements Comparable<Flow> {
 
 	@Override
 	public int compareTo(Flow o) {
+		return 0;
 		// TODO Auto-generated method stub
-		return o.byteCount.length() - this.byteCount.length();
 	}
 }

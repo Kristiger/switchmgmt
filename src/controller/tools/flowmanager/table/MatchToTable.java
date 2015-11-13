@@ -14,7 +14,7 @@ import view.util.DisplayMessage;
 public class MatchToTable {
 
 	// Gets a match and formats it appropriately for the table
-	public static String[][] getMatchTableFormat(Match m){
+	public static String[][] getMatchTableFormat(Match m) {
 
 		String[][] match = {
 				{ "Data Layer Destination", m.getDataLayerDestination() },
@@ -53,27 +53,32 @@ public class MatchToTable {
 
 		if (!items[0].getText(1).isEmpty()
 				&& !ErrorCheck.isMac(items[0].getText(1))) {
-		    DisplayMessage.displayError(StaticFlowManager.getShell(),"Data Layer Destination must be a valid MAC address.");
+			DisplayMessage.displayError(StaticFlowManager.getShell(),
+					"Data Layer Destination must be a valid MAC address.");
 			return false;
 		}
 		if (!items[1].getText(1).isEmpty()
 				&& !ErrorCheck.isMac(items[1].getText(1))) {
-		    DisplayMessage.displayError(StaticFlowManager.getShell(),"Data Layer Source must be a valid MAC address.");
+			DisplayMessage.displayError(StaticFlowManager.getShell(),
+					"Data Layer Source must be a valid MAC address.");
 			return false;
 		}
 		if (!items[3].getText(1).isEmpty()
 				&& !ErrorCheck.isNumeric(items[3].getText(1))) {
-		    DisplayMessage.displayError(StaticFlowManager.getShell(),"Data Layer VLAN must be a valid number.");
+			DisplayMessage.displayError(StaticFlowManager.getShell(),
+					"Data Layer VLAN must be a valid number.");
 			return false;
 		}
 		if (!items[4].getText(1).isEmpty()
 				&& !ErrorCheck.isNumeric(items[4].getText(1))) {
-		    DisplayMessage.displayError(StaticFlowManager.getShell(),"Data Layer PCP must be a valid number.");
+			DisplayMessage.displayError(StaticFlowManager.getShell(),
+					"Data Layer PCP must be a valid number.");
 			return false;
 		}
 		if (!items[5].getText(1).isEmpty()
 				&& !ErrorCheck.isNumeric(items[5].getText(1))) {
-		    DisplayMessage.displayError(StaticFlowManager.getShell(),"Input Port must be a valid number.");
+			DisplayMessage.displayError(StaticFlowManager.getShell(),
+					"Input Port must be a valid number.");
 			return false;
 		} else if (!items[5].getText(1).isEmpty()
 				&& ErrorCheck.isNumeric(items[5].getText(1))) {
@@ -82,48 +87,56 @@ public class MatchToTable {
 
 		if (!items[6].getText(1).isEmpty()
 				&& !ErrorCheck.isIP(items[6].getText(1))) {
-		    DisplayMessage.displayError(StaticFlowManager.getShell(),"Network Destination must be a valid IP address.");
+			DisplayMessage.displayError(StaticFlowManager.getShell(),
+					"Network Destination must be a valid IP address.");
 			return false;
 		}
 		if (!items[7].getText(1).isEmpty()
 				&& !ErrorCheck.isNumeric(items[7].getText(1))) {
-		    DisplayMessage.displayError(StaticFlowManager.getShell(),"Network Protocol must be a valid number.");
+			DisplayMessage.displayError(StaticFlowManager.getShell(),
+					"Network Protocol must be a valid number.");
 			return false;
 		}
 		if (!items[8].getText(1).isEmpty()
 				&& !ErrorCheck.isIP(items[8].getText(1))) {
-		    DisplayMessage.displayError(StaticFlowManager.getShell(),"Network Source must be a valid IP address.");
+			DisplayMessage.displayError(StaticFlowManager.getShell(),
+					"Network Source must be a valid IP address.");
 			return false;
 		}
 		if (!items[9].getText(1).isEmpty()
 				&& !ErrorCheck.isNumeric(items[9].getText(1))) {
-		    DisplayMessage.displayError(StaticFlowManager.getShell(),"Network Type of Service must be a valid number.");
+			DisplayMessage.displayError(StaticFlowManager.getShell(),
+					"Network Type of Service must be a valid number.");
 			return false;
 		}
 		if (!items[10].getText(1).isEmpty()
 				&& !ErrorCheck.isNumeric(items[10].getText(1))) {
-		    DisplayMessage.displayError(StaticFlowManager.getShell(),"Transport Destination must be a valid number.");
+			DisplayMessage.displayError(StaticFlowManager.getShell(),
+					"Transport Destination must be a valid number.");
 			return false;
 		}
 		if (!items[11].getText(1).isEmpty()
 				&& !ErrorCheck.isNumeric(items[11].getText(1))) {
-		    DisplayMessage.displayError(StaticFlowManager.getShell(),"Transport Source must be a valid number.");
+			DisplayMessage.displayError(StaticFlowManager.getShell(),
+					"Transport Source must be a valid number.");
 			return false;
 		}
 		if (!items[12].getText(1).isEmpty()
 				&& !ErrorCheck.isNumeric(items[12].getText(1))) {
-		    DisplayMessage.displayError(StaticFlowManager.getShell(),"Wildcards must be a valid number.");
+			DisplayMessage.displayError(StaticFlowManager.getShell(),
+					"Wildcards must be a valid number.");
 			return false;
 		}
 
 		if (checkPorts) {
-		    List<Port> ports = sw.getPorts();
-		    for(Port p : ports){
-                if(p.getPortNumber().equals(items[5].getText(1))){
-                    return true;
-                }
-            }
-		    DisplayMessage.displayError(StaticFlowManager.getShell(),"That port does not exist on the switch!");
+			List<Port> ports = sw.getPorts();
+			for (Port p : ports) {
+				if (p.getPortNumber().equals(items[5].getText(1))) {
+					return true;
+				}
+			}
+			DisplayMessage.displayError(StaticFlowManager.getShell(),
+					"That port does not exist on the switch!");
 			return false;
 		}
 		return true;
