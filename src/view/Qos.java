@@ -27,6 +27,7 @@ import org.eclipse.swt.widgets.TreeItem;
 
 import view.util.DisplayMessage;
 import controller.floodlightprovider.FloodlightProvider;
+import controller.overview.vms.VmDataGetter;
 import controller.util.SSHConnector;
 
 public class Qos {
@@ -117,8 +118,8 @@ public class Qos {
 			qospolicies = FloodlightProvider.getQospolicys();
 		}
 
-		if (!FloodlightProvider.getVms(false).isEmpty()) {
-			vms = FloodlightProvider.getVms(false);
+		if (!VmDataGetter.getVmDatas(true).isEmpty()) {
+			vms = VmDataGetter.getVmDatas(false);
 		}
 	}
 
@@ -197,7 +198,7 @@ public class Qos {
 		while (it.hasNext()) {
 			qospolicy = it.next();
 			if (qospolicy.getSwitchdpid().equals(currSwitch.getDpid())) {
-				vm = FloodlightProvider.getVM(currPort.getPortNumber());
+				vm = VmDataGetter.getVmData(currSwitch.getDpid(), currPort.getPortNumber());
 				if (vm != null
 						&& vm.getVmVifNumber().equals(qospolicy.getQueuePort()))
 					return true;
@@ -266,7 +267,7 @@ public class Qos {
 			if (vms == null || vms.size() == 0) {
 				// should be exist
 				DisplayMessage.displayError(shell, "havent get vms");
-				vms = FloodlightProvider.getVms(false);
+				vms = VmDataGetter.getVmDatas(false);
 				return;
 			}
 
@@ -357,7 +358,7 @@ public class Qos {
 		List<QosQueue> queues = new ArrayList<QosQueue>();
 		VmData vm = null;
 		qospolicy.setSwitchdpid(currSwitch.getDpid());
-		if ((vm = FloodlightProvider.getVM(currPort.getPortNumber())) != null)
+		if ((vm = VmDataGetter.getVmData(currSwitch.getDpid(), currPort.getPortNumber())) != null)
 			qospolicy.setQueuePort(vm.getVmVifNumber());
 		else {
 			DisplayMessage.displayError(shell, "Can't get ovs port");

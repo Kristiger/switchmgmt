@@ -151,20 +151,20 @@ public class Gui {
 		};
 		thread.start();
 
-		Thread thread2 = new Thread(new Runnable() {
-
-			@Override
+		Thread thread2 = new Thread() {
 			public void run() {
-				// TODO Auto-generated method stub
 				try {
-					populateManagementData();
-					Thread.sleep(5000);
-				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
+					Display.getDefault().asyncExec(new Runnable() {
+						public void run() {
+							populateManagementData(true);
+						}
+					});
+					sleep(5000);
+				} catch (Exception e) {
 					e.printStackTrace();
 				}
 			}
-		});
+		};
 		thread2.start();
 	}
 
@@ -236,11 +236,11 @@ public class Gui {
 	/**
 	 * Populate the table Management
 	 */
-	private void populateManagementData() {
+	private void populateManagementData(boolean update) {
 		table_mgmt.removeAll();
 
 		for (String[] data : VmsToTable.vmdatasToTable(VmDataGetter
-				.getVmDatas())) {
+				.getVmDatas(update))) {
 			TableItem item = new TableItem(table_mgmt, SWT.NONE);
 			item.setText(data);
 		}
@@ -408,7 +408,7 @@ public class Gui {
 					else if (selection[0].getText().equals("Management")) {
 						stackLayout.topControl = composite_3;
 						composite_1.layout();
-						populateManagementData();
+						populateManagementData(true);
 					}
 
 					// Handler for Static Flow Manager tree item
@@ -420,12 +420,12 @@ public class Gui {
 					// Handler for Flow Manager tree item
 					else if (selection[0].getText().equals("Firewall")) {
 						new Firewall();
-					} 
-					
+					}
+
 					else if (selection[0].getText().equals("QoS")) {
 						new Qos();
 					}
-					
+
 					else if (selection[0].getText().length() == 23) {
 						for (Switch sw : FloodlightProvider.getSwitches(false)) {
 							if (sw.getDpid().equals(selection[0].getText())) {
@@ -475,34 +475,29 @@ public class Gui {
 		TreeItem trtmVirtualnetworkfilter = new TreeItem(trtmTools, SWT.NONE);
 		trtmVirtualnetworkfilter.setText("VirtualNetworkFilter");
 
-		/*TreeItem trtmLoadbalancer = new TreeItem(trtmTools, SWT.NONE);
-		trtmLoadbalancer.setText("LoadBalancer");
-		trtmTools.setExpanded(true);*/
+		/*
+		 * TreeItem trtmLoadbalancer = new TreeItem(trtmTools, SWT.NONE);
+		 * trtmLoadbalancer.setText("LoadBalancer");
+		 * trtmTools.setExpanded(true);
+		 */
 
 		switches_table = new Table(composite_1, SWT.BORDER | SWT.FULL_SELECTION);
 		switches_table.setHeaderVisible(true);
 		switches_table.setLinesVisible(true);
-		
-		/*final Menu switchMenu = new Menu(switches_table);
-		switches_table.setMenu(switchMenu);
-		switchMenu.addMenuListener(new MenuAdapter() {
-			public void menuShown(MenuEvent e) {
-				// Get rid of existing menu items
-				MenuItem[] items = switchMenu.getItems();
-				for (int i = 0; i < items.length; i++) {
-					((MenuItem) items[i]).dispose();
-				}
-				// Add menu items for current selection
-				MenuItem newItem = new MenuItem(switchMenu, SWT.NONE);
-				newItem.setText("Manage Flows");
-				newItem.addSelectionListener(new SelectionAdapter() {
-					public void widgetSelected(SelectionEvent e) {
-						new StaticFlowManager(switches_table
-								.indexOf(switches_table.getSelection()[0]));
-					}
-				});
-			}
-		});*/
+
+		/*
+		 * final Menu switchMenu = new Menu(switches_table);
+		 * switches_table.setMenu(switchMenu); switchMenu.addMenuListener(new
+		 * MenuAdapter() { public void menuShown(MenuEvent e) { // Get rid of
+		 * existing menu items MenuItem[] items = switchMenu.getItems(); for
+		 * (int i = 0; i < items.length; i++) { ((MenuItem) items[i]).dispose();
+		 * } // Add menu items for current selection MenuItem newItem = new
+		 * MenuItem(switchMenu, SWT.NONE); newItem.setText("Manage Flows");
+		 * newItem.addSelectionListener(new SelectionAdapter() { public void
+		 * widgetSelected(SelectionEvent e) { new
+		 * StaticFlowManager(switches_table
+		 * .indexOf(switches_table.getSelection()[0])); } }); } });
+		 */
 
 		TableColumn tableColumn_1 = new TableColumn(switches_table, SWT.NONE);
 		tableColumn_1.setWidth(50);

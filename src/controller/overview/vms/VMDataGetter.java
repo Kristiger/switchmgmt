@@ -15,12 +15,14 @@ import controller.util.JSONException;
 public class VmDataGetter {
 	private static List<VmData> vms = new ArrayList<VmData>();
 
-	public static List<VmData> getVmDatas() {
-		updateVMDatas();
+	public static List<VmData> getVmDatas(boolean update) {
+		if (update)
+			updateVMDatas();
 		return vms;
 	}
 
 	public static void updateVMDatas() {
+		vms = new ArrayList<VmData>();
 		getDataFromController();
 		getDataFromXenServer();
 	}
@@ -47,26 +49,33 @@ public class VmDataGetter {
 			Device device = null;
 			Switch sw = null;
 			Port port = null;
-			VmData vm = new VmData();
 			Iterator<Device> itd = devices.iterator();
 			while (itd.hasNext()) {
+				VmData vm = new VmData();
 				device = itd.next();
 				if (device.getIpv4() != null) {
 					vm.setVmIpAddr(device.getIpv4());
+				} else {
+					continue;
 				}
 				if (device.getMacAddress() != null) {
 					vm.setVmMacAddr(device.getMacAddress());
 				}
 				if (device.getAttachedSwitch() != null) {
 					vm.setVmSwitch(device.getAttachedSwitch());
+				} else {
+					continue;
 				}
 				if (device.getSwitchPort() != 0) {
+					if (device.getSwitchPort() == 1)
+						continue;
 					vm.setVmSwitchPort(String.valueOf(device.getSwitchPort()));
 				}
 				if (device.getLastSeen() != null) {
 					vm.setLastSeen(device.getLastSeen());
 				}
-				sw = FloodlightProvider.getSwitch(device.getAttachedSwitch(), false);
+				sw = FloodlightProvider.getSwitch(device.getAttachedSwitch(),
+						false);
 				if (sw != null) {
 					ports = sw.getPorts();
 					Iterator<Port> itp = ports.iterator();
@@ -78,6 +87,7 @@ public class VmDataGetter {
 						}
 					}
 				}
+				vms.add(vm);
 			}
 		} catch (JSONException e) {
 			// TODO Auto-generated catch block

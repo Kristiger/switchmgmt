@@ -121,27 +121,6 @@ public class FloodlightProvider {
 		qospolicies.add(qospolicy);
 	}
 
-	public static List<VmData> getVms(boolean update) {
-		if(update){
-			VmDataGetter.updateVMDatas();
-		}
-		vms = VmDataGetter.getVmDatas();
-		return vms;
-	}
-	
-	public static VmData getVM(String swport){
-		if(vms.size() == 0)
-			vms = getVms(false);
-		Iterator<VmData> it = vms.iterator();
-		VmData vm = null;
-		while(it.hasNext()){
-			vm = it.next();
-			if(vm.getVmSwitchPort().equals(swport))
-				return vm;
-		}
-		return null;
-	}
-	
 	/**
 	 * @return Firewall rules
 	 */
