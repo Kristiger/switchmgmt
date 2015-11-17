@@ -19,7 +19,7 @@ public class FormatLong {
 	/* Formats longs for proper representation in the paint */
 	public static String formatPackets(long paramLong, boolean MB, boolean GB) {
 		if (paramLong >= 1000000000L && GB) {
-			return paramLong / 1000000000L + " B";
+			return paramLong / 1000000000L + " G";
 		}
 		if (paramLong >= 10000000L && MB) {
 			return paramLong / 1000000L + " M";
@@ -32,7 +32,7 @@ public class FormatLong {
 	/* Formats longs for proper representation in the paint */
 	public static String formatPackets(long paramLong) {
 		if (paramLong >= 1000000000L) {
-			return paramLong / 1000000000L + " B";
+			return paramLong / 1000000000L + " G";
 		}
 		if (paramLong >= 10000000L) {
 			return paramLong / 1000000L + " M";

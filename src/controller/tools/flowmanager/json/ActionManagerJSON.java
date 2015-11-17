@@ -60,7 +60,7 @@ public class ActionManagerJSON {
 				jsonobj = json.getJSONObject(i).getJSONObject(flowName)
 						.getJSONObject("actions");
 
-				//jsonobj = (JSONObject) jsonobj.get("actions");
+				/*jsonobj = (JSONObject) jsonobj.get("actions");
 				if (jsonobj.has("none"))
 					actions.add(new Action("none", jsonobj.getString("none")));
 				if (jsonobj.has("output"))
@@ -98,9 +98,9 @@ public class ActionManagerJSON {
 							.getString("set_tp_src")));
 				if (jsonobj.has("set_tp_dst"))
 					actions.add(new Action("set_tp_dst", jsonobj
-							.getString("set_tp_dst")));
+							.getString("set_tp_dst")));*/
 
-				/*String act = jsonobj.getString("actions");
+				String act = jsonobj.getString("actions");
 				String action[] = act.split(",");
 				String s[];
 
@@ -112,44 +112,42 @@ public class ActionManagerJSON {
 					else if (s[0].equals("output"))
 						actions.add(new Action("output", s[1]));
 
-					else if (s.equals("enqueue")) {
-						// String[] param = s.split("q");
-						// String queue = param[0] + ":" + param[1];
-						// actions.add(new Action("enqueue", queue));
+					else if (s[0].equals("enqueue"))
 						actions.add(new Action("enqueue", s[1]));
-					} else if (s.equals("strip_vlan"))
-						actions.add(new Action("strip_vlan", s[1]));
+					
+					else if (s[0].equals("strip_vlan"))
+						actions.add(new Action("strip_vlan"));
 
-					else if (s.equals("set_vlan_vid"))
+					else if (s[0].equals("set_vlan_vid"))
 						actions.add(new Action("set_vlan_vid", s[1]));
 
-					else if (s.equals("set_vlan_pcp"))
+					else if (s[0].equals("set_vlan_pcp"))
 						actions.add(new Action("set_vlan_pcp", s[1]));
 
-					else if (s.equals("set_eth_src"))
+					else if (s[0].equals("set_eth_src"))
 						actions.add(new Action("set-eth_src", s[1]));
 
-					else if (s.equals("set_eth_dst"))
+					else if (s[0].equals("set_eth_dst"))
 						actions.add(new Action("set_eth_dst", s[1]));
 
-					else if (s.equals("set_ip_tos"))
+					else if (s[0].equals("set_ip_tos"))
 						actions.add(new Action("set_ip_tos", s[1]));
 
-					else if (s.equals("set_ipv4_src"))
+					else if (s[0].equals("set_ipv4_src"))
 						actions.add(new Action("set_ipv4_src", s[1]));
 
-					else if (s.equals("set_ipv4_dst"))
+					else if (s[0].equals("set_ipv4_dst"))
 						actions.add(new Action("set_ipv4_dst", s[1]));
 
-					else if (s.equals("set_tp_src"))
+					else if (s[0].equals("set_tp_src"))
 						actions.add(new Action("set_tp_src", s[1]));
 
-					else if (s.equals("set_tp_dst"))
+					else if (s[0].equals("set_tp_dst"))
 						actions.add(new Action("set_tp_dst", s[1]));
 
 					else
 						System.out.println("unrecognized value");
-				}*/
+				}
 			}
 		}
 		return actions;

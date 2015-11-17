@@ -61,6 +61,7 @@ public class MatchToTable {
 		    DisplayMessage.displayError(StaticFlowManager.getShell(),"Data Layer Source must be a valid MAC address.");
 			return false;
 		}
+		//how to check 0xabcd 
 		if (!items[3].getText(1).isEmpty()
 				&& !ErrorCheck.isNumeric(items[3].getText(1))) {
 		    DisplayMessage.displayError(StaticFlowManager.getShell(),"Data Layer VLAN must be a valid number.");
@@ -85,11 +86,11 @@ public class MatchToTable {
 		    DisplayMessage.displayError(StaticFlowManager.getShell(),"Network Destination must be a valid IP address.");
 			return false;
 		}
-		if (!items[7].getText(1).isEmpty()
+		/*if (!items[7].getText(1).isEmpty()
 				&& !ErrorCheck.isNumeric(items[7].getText(1))) {
 		    DisplayMessage.displayError(StaticFlowManager.getShell(),"Network Protocol must be a valid number.");
 			return false;
-		}
+		}*/
 		if (!items[8].getText(1).isEmpty()
 				&& !ErrorCheck.isIP(items[8].getText(1))) {
 		    DisplayMessage.displayError(StaticFlowManager.getShell(),"Network Source must be a valid IP address.");

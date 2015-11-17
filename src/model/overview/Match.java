@@ -229,7 +229,7 @@ public class Match {
 					+ "\"");
 		}
 		if (this.networkProtocol != null) {
-			serial = serial.concat(",\"nw_proto\":\"" + this.networkProtocol
+			serial = serial.concat(",\"ip_proto\":\"" + this.networkProtocol
 					+ "\"");
 		}
 		if (this.transportDestination != null) {
@@ -273,7 +273,7 @@ public class Match {
 		if (this.dataLayerType != null) {
 			if (serial.length() > 5)
 				serial = serial.concat(", ");
-			serial = serial.concat("ether-type:" + this.dataLayerType);
+			serial = serial.concat("eth-type:" + this.dataLayerType);
 		}
 		if (this.dataLayerVLAN != null) {
 			if (serial.length() > 5)

@@ -46,6 +46,7 @@ public class MatchManagerPusher {
 				&& match.getDataLayerType() == null)
 			match.setDataLayerType("0x0800");
 
+		System.out.println(match.serialize());
 		return match;
 	}
 

@@ -189,7 +189,7 @@ public class StaticFlowManager {
 	 */
 	private void populateFlowView(int index) {
 
-		flow = FloodlightProvider.getStaticFlows(currSwitch.getDpid(), false)
+		flow = FloodlightProvider.getStaticFlows(currSwitch.getDpid(), true)
 				.get(index);
 		txtFlowName.setText(flow.getName());
 		newFlow = false;
@@ -511,7 +511,6 @@ public class StaticFlowManager {
 							// Parse the changes made to the flow
 							flow.setName(txtFlowName.getText());
 							flow.setPriority(txtFlowPriority.getText());
-							System.out.println(txtFlowPriority.getText());
 
 							// Push the flow and get the response
 							String response;

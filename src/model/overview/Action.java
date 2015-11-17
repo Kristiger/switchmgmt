@@ -59,7 +59,7 @@ public class Action {
 			this.param = "VLAN ID";
 		else if (t.equals("set_vlan_pcp"))
 			this.param = "VLAN PCP";
-		else if (t.equals("set-eth_src"))
+		else if (t.equals("set_eth_src"))
 			this.param = "Data Layer Address";
 		else if (t.equals("set_eth_dst"))
 			this.param = "Data Layer Address";

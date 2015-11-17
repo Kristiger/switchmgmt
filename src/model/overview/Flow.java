@@ -202,6 +202,7 @@ public class Flow implements Comparable<Flow> {
 	@Override
 	public int compareTo(Flow o) {
 		// TODO Auto-generated method stub
-		return o.byteCount.length() - this.byteCount.length();
+		//return o.byteCount.length() - this.byteCount.length();
+		return (int) (Long.parseLong(o.byteCount) - Long.parseLong(this.byteCount));
 	}
 }

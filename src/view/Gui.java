@@ -49,6 +49,14 @@ import controller.overview.table.VmsToTable;
 import controller.overview.vms.VmDataGetter;
 import controller.util.JSONException;
 
+import org.eclipse.swt.layout.FillLayout;
+import org.eclipse.wb.swt.SWTResourceManager;
+import org.eclipse.swt.widgets.Group;
+import org.eclipse.swt.widgets.Text;
+
+import view.util.DisplayMessage;
+import xen.ovs.util.OvsCmdExecuter;
+
 public class Gui {
 
 	private static final int winWidth = 1215;
@@ -65,40 +73,21 @@ public class Gui {
 	private Display display;
 	private static List<String> controllerInfo = new ArrayList<String>();
 
-	private Logger log = Logger.getGlobal();
 	private Table table_mgmt;
+	private Label lblIp, lblMac, lblVlanid, lblPort;
+	private Text textBandwidthMax, textBandwidthMin, textVlan;
+	private List<VmData> vms;
+	private VmData vm;
+	private Text text;
+	private Text text_1;
 
 	/**
 	 * Launch the application.
 	 */
 	public Gui(String controllerIP) {
 		FloodlightProvider.setIP(controllerIP);
+		new VmDataGetter();
 		open();
-	}
-
-	private void getVms() {
-		// TODO Auto-generated method stub
-		Thread thread1 = new Thread(new Runnable() {
-
-			@Override
-			public void run() {
-				// TODO Auto-generated method stub
-				try {
-					while (true) {
-						VmDataGetter.updateVMDatas();
-						System.out.println("vm thread running");
-						Thread.sleep(5000);
-					}
-				} catch (InterruptedException e) {
-					// TODO: handle exception
-					e.printStackTrace();
-				} catch (IllegalArgumentException e) {
-					// TODO: handle exception
-					e.printStackTrace();
-				}
-			}
-		});
-		thread1.start();
 	}
 
 	public void open() {
@@ -114,7 +103,8 @@ public class Gui {
 			}
 		}
 		// If the window is closed, stop the entire application.
-		display.dispose();
+		if (!display.isDisposed())
+			display.dispose();
 		System.exit(0);
 	}
 
@@ -140,9 +130,10 @@ public class Gui {
 						Display.getDefault().asyncExec(new Runnable() {
 							public void run() {
 								loadSwitchData(sw);
+								populateManagementData(false);
 							}
 						});
-						sleep(2000);
+						sleep(3000);
 					}
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -150,22 +141,6 @@ public class Gui {
 			}
 		};
 		thread.start();
-
-		Thread thread2 = new Thread() {
-			public void run() {
-				try {
-					Display.getDefault().asyncExec(new Runnable() {
-						public void run() {
-							populateManagementData(true);
-						}
-					});
-					sleep(5000);
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
-		};
-		thread2.start();
 	}
 
 	/**
@@ -238,9 +213,8 @@ public class Gui {
 	 */
 	private void populateManagementData(boolean update) {
 		table_mgmt.removeAll();
-
-		for (String[] data : VmsToTable.vmdatasToTable(VmDataGetter
-				.getVmDatas(update))) {
+		vms = VmDataGetter.getVmDatas(update);
+		for (String[] data : VmsToTable.vmdatasToTable(vms)) {
 			TableItem item = new TableItem(table_mgmt, SWT.NONE);
 			item.setText(data);
 		}
@@ -278,7 +252,7 @@ public class Gui {
 		sw = FloodlightProvider.getSwitch(sw.getDpid(), true);
 
 		if (sw.getFlows().size() == 0) {
-			log.info("no flows get");
+			System.out.println("no flows get");
 		}
 		for (String[] data : FlowToTable.getFlowTableFormat(sw.getFlows())) {
 			new TableItem(table_flows, SWT.NONE).setText(data);
@@ -297,34 +271,61 @@ public class Gui {
 		lblSn.setText("Serial Number : " + sw.getSerialNumber());
 	}
 
-	protected void handleVmDoubleClick(TableItem tableItem) {
+	protected void handleVmDoubleClick(int index) {
 		// TODO Auto-generated method stub
-		VmData vm = new VmData();
+		VmData vm = vms.get(index);
+		clearVmView();
+		lblIp.setText(" IP:" + vm.getVmIpAddr());
+		lblMac.setText(" Mac:" + vm.getVmMacAddr());
+		lblPort.setText(" Port:" + vm.getVmSwitchPort());
+	}
 
-		if (!tableItem.getText(1).equals("None")) {
-			vm.setVmIpAddr(tableItem.getText(1));
-		}
-		if (!tableItem.getText(1).equals("None")) {
-			vm.setVmMacAddr(tableItem.getText(2));
-		}
-		if (!tableItem.getText(1).equals("None")) {
-			vm.setVmSwitch(tableItem.getText(3));
-		}
-		if (!tableItem.getText(1).equals("None")) {
-			vm.setVmSwitchPort(tableItem.getText(4));
-		}
-		if (!tableItem.getText(1).equals("None")) {
-			DateFormat df = DateFormat.getInstance();
-			try {
-				vm.setLastSeen(df.parse(tableItem.getText(5)));
-			} catch (ParseException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+	private void clearVmView() {
+		// TODO Auto-generated method stub
+		lblIp.setText(" IP:");
+		lblMac.setText(" Mac:");
+		lblPort.setText(" Port:");
+
+		textBandwidthMax.setText("");
+		textBandwidthMin.setText("");
+		textVlan.setText("");
+	}
+	
+	protected void limitBandWidth() {
+		// TODO Auto-generated method stub
+		try {
+			if(textBandwidthMax.getText().equals("") || textBandwidthMin.getText().equals("")){
+				DisplayMessage.displayError(shell, "Rate not set");
+				return;
 			}
+			long max = Long.valueOf(textBandwidthMax.getText());
+			long min = Long.valueOf(textBandwidthMin.getText());
+			if(max < min){
+				DisplayMessage.displayError(shell, "Max rate must bigger then min rate");
+			}
+			OvsCmdExecuter.setUploadRate(vm.getVmVifNumber(), max, 100);
+			String qosUuid = OvsCmdExecuter.createRow("qos", min, min);
+			String queueUuid = OvsCmdExecuter.createRow("queue", min, min);
+			OvsCmdExecuter.addQosQueue(qosUuid, 0, queueUuid);
+		} catch (IllegalArgumentException e) {
+			// TODO: handle exception
+			e.printStackTrace();
 		}
-		if (!tableItem.getText(1).equals("None")) {
-			vm.setVmVifNumber(tableItem.getText(6));
-		}
+	}
+
+	protected void setPortVlan() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	protected void limitTcpRate() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	protected void limitUdpRate() {
+		// TODO Auto-generated method stub
+		
 	}
 
 	/**
@@ -338,7 +339,7 @@ public class Gui {
 				Toolkit.getDefaultToolkit().getScreenSize().width / 2
 						- winWidth / 2, Toolkit.getDefaultToolkit()
 						.getScreenSize().height / 2 - winHeight / 2));
-		shell.setText("Avior");
+		shell.setText("Controller Application");
 
 		Composite composite = new Composite(shell, SWT.NONE);
 		GroupLayout gl_shell = new GroupLayout(shell);
@@ -377,7 +378,7 @@ public class Gui {
 
 		final Tree tree = new Tree(composite_2, SWT.BORDER | SWT.NO_FOCUS
 				| SWT.NONE);
-		tree.setBounds(0, 36, 215, 674);
+		tree.setBounds(0, 10, 215, 700);
 		tree.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
@@ -408,7 +409,7 @@ public class Gui {
 					else if (selection[0].getText().equals("Management")) {
 						stackLayout.topControl = composite_3;
 						composite_1.layout();
-						populateManagementData(true);
+						populateManagementData(false);
 					}
 
 					// Handler for Static Flow Manager tree item
@@ -440,10 +441,6 @@ public class Gui {
 			}
 		});
 
-		Label lblM = new Label(composite_2, SWT.NONE);
-		lblM.setBounds(10, 10, 107, 17);
-		lblM.setText("Avior v1.3");
-
 		TreeItem trtmTest = new TreeItem(tree, SWT.NONE);
 		trtmTest.setText("Overview");
 
@@ -474,30 +471,11 @@ public class Gui {
 
 		TreeItem trtmVirtualnetworkfilter = new TreeItem(trtmTools, SWT.NONE);
 		trtmVirtualnetworkfilter.setText("VirtualNetworkFilter");
-
-		/*
-		 * TreeItem trtmLoadbalancer = new TreeItem(trtmTools, SWT.NONE);
-		 * trtmLoadbalancer.setText("LoadBalancer");
-		 * trtmTools.setExpanded(true);
-		 */
+		trtmTools.setExpanded(true);
 
 		switches_table = new Table(composite_1, SWT.BORDER | SWT.FULL_SELECTION);
 		switches_table.setHeaderVisible(true);
 		switches_table.setLinesVisible(true);
-
-		/*
-		 * final Menu switchMenu = new Menu(switches_table);
-		 * switches_table.setMenu(switchMenu); switchMenu.addMenuListener(new
-		 * MenuAdapter() { public void menuShown(MenuEvent e) { // Get rid of
-		 * existing menu items MenuItem[] items = switchMenu.getItems(); for
-		 * (int i = 0; i < items.length; i++) { ((MenuItem) items[i]).dispose();
-		 * } // Add menu items for current selection MenuItem newItem = new
-		 * MenuItem(switchMenu, SWT.NONE); newItem.setText("Manage Flows");
-		 * newItem.addSelectionListener(new SelectionAdapter() { public void
-		 * widgetSelected(SelectionEvent e) { new
-		 * StaticFlowManager(switches_table
-		 * .indexOf(switches_table.getSelection()[0])); } }); } });
-		 */
 
 		TableColumn tableColumn_1 = new TableColumn(switches_table, SWT.NONE);
 		tableColumn_1.setWidth(50);
@@ -713,8 +691,10 @@ public class Gui {
 		stackLayout.topControl = controllerOverview;
 
 		composite_3 = new Composite(composite_1, SWT.NONE);
+		composite_3.setLayout(null);
 
 		table_mgmt = new Table(composite_3, SWT.BORDER | SWT.FULL_SELECTION);
+		table_mgmt.setBounds(0, 0, 958, 504);
 		table_mgmt.addListener(SWT.MouseDoubleClick, new Listener() {
 
 			@Override
@@ -722,15 +702,14 @@ public class Gui {
 				// TODO Auto-generated method stub
 				TableItem[] items = table_mgmt.getItems();
 				int index = table_mgmt.getSelectionIndex();
-				handleVmDoubleClick(items[index]);
+				handleVmDoubleClick(index);
 			}
 		});
-		table_mgmt.setBounds(0, 0, 958, 700);
 		table_mgmt.setHeaderVisible(true);
 		table_mgmt.setLinesVisible(true);
 
 		TableColumn tblclmnVmName = new TableColumn(table_mgmt, SWT.NONE);
-		tblclmnVmName.setWidth(150);
+		tblclmnVmName.setWidth(86);
 		tblclmnVmName.setText("VM Name");
 
 		TableColumn tblclmnIp_1 = new TableColumn(table_mgmt, SWT.NONE);
@@ -750,7 +729,7 @@ public class Gui {
 		tblclmnPort.setText("PORT");
 
 		TableColumn tblclmnLastseen = new TableColumn(table_mgmt, SWT.NONE);
-		tblclmnLastseen.setWidth(100);
+		tblclmnLastseen.setWidth(126);
 		tblclmnLastseen.setText("LASTSEEN");
 
 		TableColumn tblclmnVif = new TableColumn(table_mgmt, SWT.NONE);
@@ -758,10 +737,125 @@ public class Gui {
 		tblclmnVif.setText("VIF");
 
 		TableColumn tblclmnUuid = new TableColumn(table_mgmt, SWT.NONE);
-		tblclmnUuid.setWidth(100);
+		tblclmnUuid.setWidth(190);
 		tblclmnUuid.setText("UUID");
+
+		Composite composite_4 = new Composite(composite_3, SWT.BORDER);
+		composite_4.setBounds(0, 510, 958, 190);
+
+		lblIp = new Label(composite_4, SWT.BORDER);
+		lblIp.setFont(SWTResourceManager.getFont("Segoe UI", 10, SWT.NORMAL));
+		lblIp.setBounds(10, 10, 146, 19);
+		lblIp.setText(" IP:");
+
+		lblMac = new Label(composite_4, SWT.BORDER);
+		lblMac.setText(" Mac:");
+		lblMac.setFont(SWTResourceManager.getFont("Segoe UI", 10, SWT.NORMAL));
+		lblMac.setBounds(200, 10, 146, 19);
+
+		lblPort = new Label(composite_4, SWT.BORDER);
+		lblPort.setText(" Port:");
+		lblPort.setFont(SWTResourceManager.getFont("Segoe UI", 10, SWT.NORMAL));
+		lblPort.setBounds(390, 10, 146, 19);
+
+		Group group = new Group(composite_4, SWT.NONE);
+		group.setText("\u9650\u901F");
+		group.setBounds(10, 35, 526, 56);
+
+		Label label = new Label(group, SWT.NONE);
+		label.setAlignment(SWT.RIGHT);
+		label.setBounds(7, 26, 55, 15);
+		label.setText("\u6700\u5C0F");
+
+		textBandwidthMax = new Text(group, SWT.BORDER);
+		textBandwidthMax.setBounds(68, 23, 123, 21);
+
+		Label label_1 = new Label(group, SWT.NONE);
+		label_1.setAlignment(SWT.RIGHT);
+		label_1.setText("\u6700\u5927");
+		label_1.setBounds(213, 26, 55, 15);
+
+		textBandwidthMin = new Text(group, SWT.BORDER);
+		textBandwidthMin.setBounds(274, 22, 123, 21);
+
+		Button button = new Button(group, SWT.NONE);
+		button.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				TableItem[] items = table_mgmt.getSelection();
+				int index = table_mgmt.getSelectionIndex();
+				vm = vms.get(index);
+				limitBandWidth();
+			}
+		});
+		button.setBounds(428, 21, 75, 25);
+		button.setText("\u786E\u5B9A");
+
+		Group grpvlan = new Group(composite_4, SWT.NONE);
+		grpvlan.setText("\u8BBE\u7F6EVLAN");
+		grpvlan.setBounds(10, 97, 526, 61);
+
+		lblVlanid = new Label(grpvlan, SWT.NONE);
+		lblVlanid.setBounds(17, 28, 55, 15);
+		lblVlanid.setText("VLAN-ID");
+
+		textVlan = new Text(grpvlan, SWT.BORDER);
+		textVlan.setToolTipText("0-4095");
+		textVlan.setBounds(69, 24, 86, 21);
+
+		Button button_1 = new Button(grpvlan, SWT.NONE);
+		button_1.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				setPortVlan();
+			}
+		});
+		button_1.setBounds(428, 24, 75, 25);
+		button_1.setText("\u786E\u5B9A");
+
+		Group group_1 = new Group(composite_4, SWT.NONE);
+		group_1.setText("\u901F\u5EA6\u9650\u5236");
+		group_1.setBounds(554, 9, 390, 147);
+
+		Button btntcp = new Button(group_1, SWT.NONE);
+		btntcp.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				limitTcpRate();
+			}
+		});
+		btntcp.setBounds(231, 27, 99, 43);
+		btntcp.setText("\u9650\u5236TCP\u6D41\u91CF");
+
+		Button btnudp = new Button(group_1, SWT.NONE);
+		btnudp.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				limitUdpRate();
+			}
+		});
+		btnudp.setBounds(231, 93, 99, 43);
+		btnudp.setText("\u9650\u5236UDP\u6D41\u91CF");
+
+		text = new Text(group_1, SWT.BORDER);
+		text.setBounds(78, 38, 112, 21);
+
+		text_1 = new Text(group_1, SWT.BORDER);
+		text_1.setBounds(78, 104, 112, 21);
+
+		Label label_2 = new Label(group_1, SWT.NONE);
+		label_2.setAlignment(SWT.RIGHT);
+		label_2.setBounds(17, 40, 55, 15);
+		label_2.setText("\u901F\u7387");
+
+		Label label_3 = new Label(group_1, SWT.NONE);
+		label_3.setText("\u901F\u7387");
+		label_3.setAlignment(SWT.RIGHT);
+		label_3.setBounds(17, 108, 55, 15);
+
 		composite_1.layout(true);
 
 		shell.setLayout(gl_shell);
 	}
+
 }

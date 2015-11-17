@@ -27,7 +27,8 @@ public class MatchManagerJSON {
 	private static JSONArray json;
 	private static Future<Object> future;
 
-	// This parses JSON from the restAPI to get the match of a flow and all it's values
+	// This parses JSON from the restAPI to get the match of a flow and all it's
+	// values
 	public static Match getMatch(String dpid, String flowName)
 			throws JSONException, IOException {
 		Match match = new Match();
@@ -66,9 +67,13 @@ public class MatchManagerJSON {
 			if(obj.has("eth_src"))
 				if (!obj.getString("eth_src").equals("00:00:00:00:00:00"))
 					match.setDataLayerSource(obj.getString("eth_src"));
-			if(obj.has("eth_type"))
-				if (!obj.getString("eth_type").equals("0x0000"))
-					match.setDataLayerType(obj.getString("eth_type"));
+			if(obj.has("eth_type")){
+				String eth_type = obj.getString("eth_type");
+				eth_type = eth_type.replaceAll("0x", "");
+				eth_type = "0x" + eth_type;
+				if (eth_type.equals("0x0000"))
+					match.setDataLayerType(eth_type);
+			}
 			if(obj.has("eth_vlan_vid"))
 				if (obj.getInt("eth_vlan_vid") > 0)
 					match.setDataLayerVLAN(String.valueOf(obj
@@ -83,15 +88,11 @@ public class MatchManagerJSON {
 			if(obj.has("ipv4_dst"))
 				if (!obj.getString("ipv4_dst").equals("0.0.0.0"))
 					match.setNetworkDestination(obj.getString("ipv4_dst"));
-			// match.setNetworkDestinationMaskLength(String.valueOf(obj.getInt("networkDestinationMaskLen")));
 			if(obj.has("ip_proto"))
-				if (obj.getInt("ip_proto") != 0)
-					match.setNetworkProtocol(String.valueOf(obj
-							.getInt("ip_proto")));
+					match.setNetworkProtocol(obj.getString("ip_proto"));
 			if(obj.has("ipv4_src"))
 				if (!obj.getString("ipv4_src").equals("0.0.0.0"))
 					match.setNetworkSource(obj.getString("ipv4_src"));
-			// match.setNetworkSourceMaskLength(String.valueOf(obj.getInt("networkSourceMaskLen")));
 			if(obj.has("ip_tos"))
 				if (obj.getInt("ip_tos") != 0)
 					match.setNetworkTypeOfService(String.valueOf(obj

@@ -28,7 +28,6 @@ public class FloodlightProvider {
 	private static String IP, PORT = "8080";
 
 	/**
-	 * 
 	 * @return The list of switches
 	 */
 	public static List<Switch> getSwitches(boolean update) {

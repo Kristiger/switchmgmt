@@ -24,12 +24,11 @@ public class ActionToTable {
 			StringBuilder param = new StringBuilder(action.getParam());
 			StringBuilder value = new StringBuilder(action.getValue());
 			String[][] act = { { param.substring(0, param.indexOf(":")),
-					// value.substring(0, value.indexOf(":")) },
-					value.toString() },
+					value.substring(0, value.indexOf(":")) },
 					{ param.substring(param.indexOf(":") + 1, param.length()),
-							// value.substring(value.indexOf(":") + 1,
-							// value.length()) },
-							""}, { "Type", action.getType() } };
+							value.substring(value.indexOf(":") + 1,
+							value.length()) },
+							 { "Type", action.getType(), } };
 			return act;
 		} else {
 			String[][] act = { { action.getParam(), action.getValue() },

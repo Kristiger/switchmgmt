@@ -9,7 +9,7 @@ import controller.overview.vms.VmDataGetter;
 
 public class VmsToTable {
 	public static String[][] vmdatasToTable(List<VmData> vms) {
-		String[][] tableArr = new String[vms.size()][7];
+		String[][] tableArr = new String[vms.size()][8];
 		int count = 0;
 		Iterator<VmData> it = vms.iterator();
 		VmData vm = null;
@@ -22,7 +22,8 @@ public class VmsToTable {
 			stringList.add(vm.getVmSwitch() != null ? vm.getVmSwitch() : "None");
 			stringList.add(vm.getVmSwitchPort() != null ? vm.getVmSwitchPort() : "None");
 			stringList.add(vm.getLastSeen() != null ? vm.getLastSeen().toString() : "None");
-			stringList.add(vm.getVmVifNumber() != null? vm.getVmVifNumber(): "None");
+			stringList.add(vm.getVmVifNumber() != null ? vm.getVmVifNumber() : "None");
+			stringList.add(vm.getVmUuid() != null ? vm.getVmUuid() : "None");
 			tableArr[count] = stringList.toArray(new String[stringList.size()]);
 			count ++;
 		}

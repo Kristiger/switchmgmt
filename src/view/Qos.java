@@ -198,7 +198,8 @@ public class Qos {
 		while (it.hasNext()) {
 			qospolicy = it.next();
 			if (qospolicy.getSwitchdpid().equals(currSwitch.getDpid())) {
-				vm = VmDataGetter.getVmData(currSwitch.getDpid(), currPort.getPortNumber());
+				vm = VmDataGetter.getVmData(currSwitch.getDpid(),
+						currPort.getPortNumber());
 				if (vm != null
 						&& vm.getVmVifNumber().equals(qospolicy.getQueuePort()))
 					return true;
@@ -327,17 +328,17 @@ public class Qos {
 				+ "-- --id=@q0 create queue other-config:max-rate=1111 other-config:min-rate=111 "
 				+ "-- --id=@q1 create queue other-config:max-rate=100 other-config:min-rate=50";
 
-		String result = SSHConnector.exec(command);
-		if (!result.equals("")) {
-			String[] uuids = result.split("\n");
-			qospolicy.setUuid(uuids[0]);
+		List<String> result = new SSHConnector().exec(command);
+		if (result != null) {
+			qospolicy.setUuid(result.get(0));
 			int i = 1;
 			Iterator<QosQueue> it = qospolicy.getQueues().iterator();
 			QosQueue queue = null;
 			while (it.hasNext()) {
 				queue = it.next();
-				queue.setUuid(uuids[i++]);
+				queue.setUuid(result.get(i));
 			}
+			
 			QosPolicy other = null;
 			if ((other = FloodlightProvider.getQospolicy(
 					qospolicy.getSwitchdpid(), qospolicy.getQueuePort())) != null)
@@ -358,7 +359,8 @@ public class Qos {
 		List<QosQueue> queues = new ArrayList<QosQueue>();
 		VmData vm = null;
 		qospolicy.setSwitchdpid(currSwitch.getDpid());
-		if ((vm = VmDataGetter.getVmData(currSwitch.getDpid(), currPort.getPortNumber())) != null)
+		if ((vm = VmDataGetter.getVmData(currSwitch.getDpid(),
+				currPort.getPortNumber())) != null)
 			qospolicy.setQueuePort(vm.getVmVifNumber());
 		else {
 			DisplayMessage.displayError(shell, "Can't get ovs port");
@@ -492,8 +494,8 @@ public class Qos {
 	private void clearAllQueues() {
 		String command = "ovs-vsctl clear port " + qospolicy.getQueuePort()
 				+ " qos && ovs-vsctl --all destroy qos --all destroy queue";
-		String result = SSHConnector.exec(command);
-		DisplayMessage.displayStatus(shell, result);
+		List<String> result = new SSHConnector().exec(command);
+		DisplayMessage.displayStatus(shell, result.get(0));
 	}
 
 	/**

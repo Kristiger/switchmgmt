@@ -46,7 +46,6 @@ public class Switch {
 	}
 
 	public void setDpid(String dpid) {
-		// this.dpid = manufacturerDescription;
 		this.dpid = dpid;
 	}
 
@@ -100,7 +99,7 @@ public class Switch {
 	}
 
 	public List<Flow> getFlows(){
-		//Collections.sort(flows);
+		Collections.sort(flows);
 		return flows;
 	}
 
