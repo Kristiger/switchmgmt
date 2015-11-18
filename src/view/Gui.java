@@ -2,20 +2,14 @@ package view;
 
 import java.awt.Toolkit;
 import java.io.IOException;
-import java.text.DateFormat;
-import java.text.ParseException;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
-import java.util.logging.Logger;
 
 import model.overview.Switch;
 import model.overview.VmData;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StackLayout;
-import org.eclipse.swt.events.MenuAdapter;
-import org.eclipse.swt.events.MenuEvent;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Point;
@@ -28,8 +22,6 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
-import org.eclipse.swt.widgets.Menu;
-import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Table;
@@ -49,7 +41,6 @@ import controller.overview.table.VmsToTable;
 import controller.overview.vms.VmDataGetter;
 import controller.util.JSONException;
 
-import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.wb.swt.SWTResourceManager;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Text;
@@ -75,11 +66,10 @@ public class Gui {
 
 	private Table table_mgmt;
 	private Label lblIp, lblMac, lblVlanid, lblPort;
-	private Text textBandwidthMax, textBandwidthMin, textVlan;
+	private Text textBandwidthUp, textBandwidthDown, textVlan;
 	private List<VmData> vms;
 	private VmData vm;
-	private Text text;
-	private Text text_1;
+	private Text textTcpRate, textUdpRate;
 
 	/**
 	 * Launch the application.
@@ -130,7 +120,7 @@ public class Gui {
 						Display.getDefault().asyncExec(new Runnable() {
 							public void run() {
 								loadSwitchData(sw);
-								populateManagementData(false);
+								// populateManagementData(false);
 							}
 						});
 						sleep(3000);
@@ -273,7 +263,7 @@ public class Gui {
 
 	protected void handleVmDoubleClick(int index) {
 		// TODO Auto-generated method stub
-		VmData vm = vms.get(index);
+		vm = vms.get(index);
 		clearVmView();
 		lblIp.setText(" IP:" + vm.getVmIpAddr());
 		lblMac.setText(" Mac:" + vm.getVmMacAddr());
@@ -286,28 +276,42 @@ public class Gui {
 		lblMac.setText(" Mac:");
 		lblPort.setText(" Port:");
 
-		textBandwidthMax.setText("");
-		textBandwidthMin.setText("");
+		textBandwidthUp.setText("");
+		textBandwidthDown.setText("");
 		textVlan.setText("");
 	}
-	
+
 	protected void limitBandWidth() {
 		// TODO Auto-generated method stub
 		try {
-			if(textBandwidthMax.getText().equals("") || textBandwidthMin.getText().equals("")){
+			if (textBandwidthUp.getText().equals("")
+					&& textBandwidthDown.getText().equals("")) {
 				DisplayMessage.displayError(shell, "Rate not set");
 				return;
 			}
-			long max = Long.valueOf(textBandwidthMax.getText());
-			long min = Long.valueOf(textBandwidthMin.getText());
-			if(max < min){
-				DisplayMessage.displayError(shell, "Max rate must bigger then min rate");
+
+			if (!textBandwidthUp.getText().equals("")) {
+				long upload = Long.valueOf(textBandwidthUp.getText());
+				if (upload > 0) {
+					OvsCmdExecuter.setUploadRate(vm.getVmVifNumber(), upload,
+							100);
+				}
 			}
-			OvsCmdExecuter.setUploadRate(vm.getVmVifNumber(), max, 100);
-			String qosUuid = OvsCmdExecuter.createRow("qos", min, min);
-			String queueUuid = OvsCmdExecuter.createRow("queue", min, min);
-			OvsCmdExecuter.addQosQueue(qosUuid, 0, queueUuid);
-		} catch (IllegalArgumentException e) {
+
+			if (!textBandwidthDown.getText().equals("")) {
+				long download = Long.valueOf(textBandwidthDown.getText());
+
+				if (download > 0) {
+					// rate must be x1000 to convert to kbps
+					String qosUuid = OvsCmdExecuter.createRow("qos",
+							download * 1000, download * 1000);
+					String queueUuid = OvsCmdExecuter.createRow("queue",
+							download * 1000, download * 1000);
+					OvsCmdExecuter.addQosQueue(qosUuid, 0, queueUuid);
+					OvsCmdExecuter.setPortQos(vm.getVmVifNumber(), qosUuid);
+				}
+			}
+		} catch (NumberFormatException e) {
 			// TODO: handle exception
 			e.printStackTrace();
 		}
@@ -315,17 +319,31 @@ public class Gui {
 
 	protected void setPortVlan() {
 		// TODO Auto-generated method stub
-		
+		try {
+			int vlan = Integer.valueOf(textVlan.getText());
+			OvsCmdExecuter.setVlanTag(vm.getVmVifNumber(), vlan);
+		} catch (NumberFormatException e) {
+			// TODO: handle exception
+			e.printStackTrace();
+		}
 	}
 
 	protected void limitTcpRate() {
 		// TODO Auto-generated method stub
-		
+		try {
+			long tcpRate = Long.valueOf(textTcpRate.getText());
+		} catch (Exception e) {
+			// TODO: handle exception
+		}
 	}
 
 	protected void limitUdpRate() {
 		// TODO Auto-generated method stub
-		
+		try {
+			long udpRate = Long.valueOf(textUdpRate.getText());
+		} catch (Exception e) {
+			// TODO: handle exception
+		}
 	}
 
 	/**
@@ -420,7 +438,7 @@ public class Gui {
 
 					// Handler for Flow Manager tree item
 					else if (selection[0].getText().equals("Firewall")) {
-						new Firewall();
+						// new Firewall();
 					}
 
 					else if (selection[0].getText().equals("QoS")) {
@@ -463,15 +481,20 @@ public class Gui {
 		TreeItem trtmFlowManager = new TreeItem(trtmTools, SWT.NONE);
 		trtmFlowManager.setText("Static Flow Manager");
 
-		TreeItem trtmFirewall = new TreeItem(trtmTools, SWT.NONE);
-		trtmFirewall.setText("Firewall");
+		/*
+		 * TreeItem trtmFirewall = new TreeItem(trtmTools, SWT.NONE);
+		 * trtmFirewall.setText("Firewall");
+		 */
 
 		TreeItem trtmQos = new TreeItem(trtmTools, SWT.NONE);
 		trtmQos.setText("QoS");
-
-		TreeItem trtmVirtualnetworkfilter = new TreeItem(trtmTools, SWT.NONE);
-		trtmVirtualnetworkfilter.setText("VirtualNetworkFilter");
 		trtmTools.setExpanded(true);
+
+		/*
+		 * TreeItem trtmVirtualnetworkfilter = new TreeItem(trtmTools,
+		 * SWT.NONE); trtmVirtualnetworkfilter.setText("VirtualNetworkFilter");
+		 * trtmTools.setExpanded(true);
+		 */
 
 		switches_table = new Table(composite_1, SWT.BORDER | SWT.FULL_SELECTION);
 		switches_table.setHeaderVisible(true);
@@ -696,11 +719,9 @@ public class Gui {
 		table_mgmt = new Table(composite_3, SWT.BORDER | SWT.FULL_SELECTION);
 		table_mgmt.setBounds(0, 0, 958, 504);
 		table_mgmt.addListener(SWT.MouseDoubleClick, new Listener() {
-
 			@Override
 			public void handleEvent(Event arg0) {
 				// TODO Auto-generated method stub
-				TableItem[] items = table_mgmt.getItems();
 				int index = table_mgmt.getSelectionIndex();
 				handleVmDoubleClick(index);
 			}
@@ -762,41 +783,47 @@ public class Gui {
 		group.setText("\u9650\u901F");
 		group.setBounds(10, 35, 526, 56);
 
+		Label lblKb = new Label(group, SWT.NONE);
+		lblKb.setBounds(197, 26, 31, 15);
+		lblKb.setText("KBps");
+
 		Label label = new Label(group, SWT.NONE);
 		label.setAlignment(SWT.RIGHT);
 		label.setBounds(7, 26, 55, 15);
-		label.setText("\u6700\u5C0F");
+		label.setText("\u4E0A\u4F20");
 
-		textBandwidthMax = new Text(group, SWT.BORDER);
-		textBandwidthMax.setBounds(68, 23, 123, 21);
+		textBandwidthUp = new Text(group, SWT.BORDER);
+		textBandwidthUp.setBounds(68, 23, 123, 21);
 
 		Label label_1 = new Label(group, SWT.NONE);
 		label_1.setAlignment(SWT.RIGHT);
-		label_1.setText("\u6700\u5927");
-		label_1.setBounds(213, 26, 55, 15);
+		label_1.setText("\u4E0B\u8F7D");
+		label_1.setBounds(237, 26, 31, 15);
 
-		textBandwidthMin = new Text(group, SWT.BORDER);
-		textBandwidthMin.setBounds(274, 22, 123, 21);
+		textBandwidthDown = new Text(group, SWT.BORDER);
+		textBandwidthDown.setBounds(274, 22, 123, 21);
 
 		Button button = new Button(group, SWT.NONE);
 		button.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				TableItem[] items = table_mgmt.getSelection();
-				int index = table_mgmt.getSelectionIndex();
-				vm = vms.get(index);
 				limitBandWidth();
 			}
 		});
-		button.setBounds(428, 21, 75, 25);
+		button.setBounds(441, 21, 75, 25);
 		button.setText("\u786E\u5B9A");
+
+		Label lblKbps = new Label(group, SWT.NONE);
+		lblKbps.setText("KBps");
+		lblKbps.setBounds(403, 26, 32, 15);
 
 		Group grpvlan = new Group(composite_4, SWT.NONE);
 		grpvlan.setText("\u8BBE\u7F6EVLAN");
 		grpvlan.setBounds(10, 97, 526, 61);
 
 		lblVlanid = new Label(grpvlan, SWT.NONE);
-		lblVlanid.setBounds(17, 28, 55, 15);
+		lblVlanid.setAlignment(SWT.RIGHT);
+		lblVlanid.setBounds(10, 27, 55, 15);
 		lblVlanid.setText("VLAN-ID");
 
 		textVlan = new Text(grpvlan, SWT.BORDER);
@@ -810,7 +837,7 @@ public class Gui {
 				setPortVlan();
 			}
 		});
-		button_1.setBounds(428, 24, 75, 25);
+		button_1.setBounds(441, 22, 75, 25);
 		button_1.setText("\u786E\u5B9A");
 
 		Group group_1 = new Group(composite_4, SWT.NONE);
@@ -837,11 +864,11 @@ public class Gui {
 		btnudp.setBounds(231, 93, 99, 43);
 		btnudp.setText("\u9650\u5236UDP\u6D41\u91CF");
 
-		text = new Text(group_1, SWT.BORDER);
-		text.setBounds(78, 38, 112, 21);
+		textTcpRate = new Text(group_1, SWT.BORDER);
+		textTcpRate.setBounds(78, 38, 112, 21);
 
-		text_1 = new Text(group_1, SWT.BORDER);
-		text_1.setBounds(78, 104, 112, 21);
+		textUdpRate = new Text(group_1, SWT.BORDER);
+		textUdpRate.setBounds(78, 104, 112, 21);
 
 		Label label_2 = new Label(group_1, SWT.NONE);
 		label_2.setAlignment(SWT.RIGHT);
@@ -852,6 +879,14 @@ public class Gui {
 		label_3.setText("\u901F\u7387");
 		label_3.setAlignment(SWT.RIGHT);
 		label_3.setBounds(17, 108, 55, 15);
+
+		Label lblKbps_1 = new Label(group_1, SWT.NONE);
+		lblKbps_1.setText("KBps");
+		lblKbps_1.setBounds(195, 41, 30, 15);
+
+		Label lblKbps_2 = new Label(group_1, SWT.NONE);
+		lblKbps_2.setText("KBps");
+		lblKbps_2.setBounds(195, 107, 30, 15);
 
 		composite_1.layout(true);
 

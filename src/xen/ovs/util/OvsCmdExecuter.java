@@ -43,21 +43,21 @@ public class OvsCmdExecuter {
 	public static String createRow(String table, long maxRate, long minRate) {
 		String command = "ovs-vsctl";
 		if (table.equals("qos")) {
-			command = command + " create qos type=linux-htb ";
+			command = command + " create qos type=linux-htb";
 		} else if (table.equals("queue")) {
-			command = command + "create queue";
+			command = command + " create queue";
 		} else {
 			log.info("Unrecognized table :" + table);
 			return null;
 		}
 
 		if (maxRate > 0)
-			command = command + "other-config:max-rate=" + maxRate;
+			command = command + " other-config:max-rate=" + maxRate;
 		if (minRate > 0)
-			command = command + "other-config:min-rate=" + minRate;
+			command = command + " other-config:min-rate=" + minRate;
 
 		List<String> result = new SSHConnector().exec(command);
-		if (result.size() != 0) {
+		if (result.size() == 0) {
 			log.info("Error occured :" + result.get(0));
 			return null;
 		}
@@ -107,7 +107,7 @@ public class OvsCmdExecuter {
 	public static void setUploadRate(String portId, long maxRate, long burstRate) {
 		String command1 = "";
 		if (maxRate > 0) {
-			command1 = "ovs-vsctl set interface" + portId
+			command1 = "ovs-vsctl set interface " + portId
 					+ " ingress_policing_rate=" + maxRate;
 		} else {
 			log.info("Max rate must be set.");
@@ -122,7 +122,7 @@ public class OvsCmdExecuter {
 
 		String command2 = "";
 		if (burstRate > 0) {
-			command2 = "ovs-vsctl set interface" + portId
+			command2 = "ovs-vsctl set interface " + portId
 					+ " ingress_policing_burst=" + burstRate;
 		}
 
@@ -133,8 +133,7 @@ public class OvsCmdExecuter {
 
 	}
 
-	public static void setPortQos(String portId, String qosUuid,
-			String[] queueUuids) {
+	public static void setPortQos(String portId, String qosUuid) {
 		String command = "ovs-vsctl set port " + portId + " qos=" + qosUuid;
 		List<String> result = new SSHConnector().exec(command);
 		if (result.size() != 0) {
@@ -147,7 +146,7 @@ public class OvsCmdExecuter {
 				+ vlanTag;
 		List<String> result = new SSHConnector().exec(command);
 		if (result.size() != 0) {
-			// log.info("");
+			//
 		}
 	}
 
@@ -157,11 +156,11 @@ public class OvsCmdExecuter {
 		String command = "ovs-vsctl list interface " + portId
 				+ " | grep external_ids";
 		List<String> result = new SSHConnector().exec(command);
-		if(result.size() == 0){
+		if (result.size() == 0) {
 			return result;
 		}
 		String str = result.get(0);
-		
+
 		result = new ArrayList<String>();
 		result.add(str.substring(str.indexOf("xs-vm-uuid") + 13,
 				str.indexOf("}") - 1));
